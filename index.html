@@ -87,7 +87,6 @@
         .clickable-area:active {
             opacity: 0.7;
             background-color: #f5f5f4;
-            border-radius: 1rem;
         }
     </style>
 </head>
@@ -133,7 +132,7 @@
         </div>
     </section>
 
-    <!-- Main Content: List View -->
+    <!-- Main Content: 2-Column Grid View -->
     <main class="flex-grow w-full max-w-3xl mx-auto px-4">
         
         <div id="noResults" class="hidden flex-col items-center justify-center py-16">
@@ -143,8 +142,9 @@
             <p class="text-base font-heading font-medium text-stone-500" id="noResultsText">ไม่พบรายนามพระสาวก</p>
         </div>
 
-        <div id="chapterList" class="flex flex-col gap-2.5 pb-6">
-            <!-- List Items -->
+        <!-- 🟢 เปลี่ยนคลาสเป็น grid 2 คอลัมน์ -->
+        <div id="chapterList" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 pb-6">
+            <!-- Cards Items -->
         </div>
     </main>
 
@@ -174,7 +174,7 @@
             <div class="px-4 pb-8 pt-3 overflow-y-auto">
                 <div class="flex flex-col gap-2">
                     
-                    <button id="btn-book" class="flex items-center p-3.5 rounded-2xl bg-white border border-stone-100 shadow-sm-soft text-stone-700 active:bg-stone-50 transition-colors cursor-pointer">
+                    <button id="btn-book" class="flex items-center p-3.5 rounded-2xl bg-white border border-stone-100 shadow-sm-soft text-stone-700 active:bg-stone-50 transition-colors cursor-pointer opacity-100">
                         <div class="icon-circle w-10 h-10 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center mr-4 shrink-0 transition-all">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                         </div>
@@ -185,7 +185,7 @@
                         <svg class="w-4 h-4 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                     </button>
 
-                    <button id="btn-cartoon" class="flex items-center p-3.5 rounded-2xl bg-white border border-stone-100 shadow-sm-soft text-stone-700 active:bg-stone-50 transition-colors cursor-pointer">
+                    <button id="btn-cartoon" class="flex items-center p-3.5 rounded-2xl bg-white border border-stone-100 shadow-sm-soft text-stone-700 active:bg-stone-50 transition-colors cursor-pointer opacity-100">
                         <div class="icon-circle w-10 h-10 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mr-4 shrink-0 transition-all">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                         </div>
@@ -196,7 +196,7 @@
                         <svg class="w-4 h-4 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                     </button>
                     
-                    <button id="btn-video" class="flex items-center p-3.5 rounded-2xl bg-white border border-stone-100 shadow-sm-soft text-stone-700 active:bg-stone-50 transition-colors cursor-pointer">
+                    <button id="btn-video" class="flex items-center p-3.5 rounded-2xl bg-white border border-stone-100 shadow-sm-soft text-stone-700 active:bg-stone-50 transition-colors cursor-pointer opacity-100">
                         <div class="icon-circle w-10 h-10 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mr-4 shrink-0 transition-all">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         </div>
@@ -207,7 +207,7 @@
                         <svg class="w-4 h-4 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                     </button>
 
-                    <button id="btn-podcast" class="flex items-center p-3.5 rounded-2xl bg-white border border-stone-100 shadow-sm-soft text-stone-700 active:bg-stone-50 transition-colors cursor-pointer">
+                    <button id="btn-podcast" class="flex items-center p-3.5 rounded-2xl bg-white border border-stone-100 shadow-sm-soft text-stone-700 active:bg-stone-50 transition-colors cursor-pointer opacity-100">
                         <div class="icon-circle w-10 h-10 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center mr-4 shrink-0 transition-all">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
                         </div>
@@ -258,7 +258,6 @@
 
     <!-- JavaScript Data and Logic -->
     <script>
-        // ✅ ประกาศฟังก์ชันลงใน window เพื่อป้องกันบั๊กเวลาฝังบน Google Sites
         const BASE_URL = "https://sites.google.com/view/anuphudhha";
         const DEFAULT_IMAGE_URL = 'https://images.unsplash.com/photo-1540455855018-c2b99fa2e41a?auto=format&fit=crop&q=80&w=200';
 
@@ -357,15 +356,15 @@
             { id: 80, title: "พระยโสชะ", desc: "ประธานแห่งภิกษุ ๕๐๐ รูปที่พระพุทธองค์ทรงสรรเสริญ" }
         ];
 
-        // ✅ ใส่ลิงก์ตัวอย่างของ Youtube ให้ด้วย เพื่อให้คลิกแล้วโชว์ Dialog ได้เลย
+        // ✅ อัปเดตข้อมูล URL สำหรับลิงก์ต่างๆ
         const chapters = chapterData.map(ch => ({
             ...ch,
             image: DEFAULT_IMAGE_URL,
             urls: {
-                book: `${BASE_URL}/${toSlug(ch.title)}`, // เปิด _blank
-                cartoon: `${BASE_URL}/cartoon-${toSlug(ch.title)}`, // สมมติให้มีลิงก์เปิด _blank
-                video: 'https://www.youtube.com/watch?v=jNQXAC9IVRw',   // เปิด Modal ในเว็บ
-                podcast: 'https://www.youtube.com/watch?v=jNQXAC9IVRw'  // เปิด Modal ในเว็บ
+                book: `${BASE_URL}/${toSlug(ch.title)}`, // มี URL = แสดงสี, เปิด _blank
+                cartoon: '', // ไม่มี URL = แสดง Grayscale, ขึ้นแจ้งเตือน
+                video: 'https://www.youtube.com/watch?v=jNQXAC9IVRw', // มี URL = แสดงสี, เปิดวิดีโอในเว็บ
+                podcast: 'https://www.youtube.com/watch?v=jNQXAC9IVRw' // มี URL = แสดงสี, เปิดพอดแคสต์ในเว็บ
             }
         }));
 
@@ -404,7 +403,7 @@
             else dot.classList.add('hidden');
         }
 
-        // 🟢 แสดงผล List แนวนอน และมี onclick เปิด Bottom Sheet
+        // 🟢 แสดงผลแบบ 2 คอลัมน์ (Grid 2 Cols) 
         window.renderList = function(data, stagger = true) {
             listContainer.innerHTML = '';
             itemCount.textContent = `${data.length} องค์`;
@@ -421,27 +420,27 @@
                     const isFav = myFavorites.includes(chapter.id);
                     const item = document.createElement('div');
                     
-                    item.className = `fade-in flex items-stretch bg-white border border-stone-100 rounded-2xl transition-all shadow-sm`;
+                    // โครงสร้างการ์ดแนวตั้ง สำหรับแสดงผลแบบ 2 คอลัมน์
+                    item.className = `fade-in bg-white border border-stone-100 rounded-xl overflow-hidden shadow-sm transition-transform active:scale-95 flex flex-col relative`;
                     if(stagger) item.style = delay;
                     
                     item.innerHTML = `
-                        <div class="clickable-area flex-grow flex items-center p-3 cursor-pointer" onclick="window.openSheet(${chapter.id})">
-                            <div class="w-[46px] h-[46px] rounded-full bg-stone-100 overflow-hidden shrink-0 border border-stone-100">
+                        <div class="clickable-area flex flex-col h-full cursor-pointer" onclick="window.openSheet(${chapter.id})">
+                            <div class="relative w-full aspect-square bg-stone-100">
                                 <img src="${chapter.image}" alt="${chapter.title}" class="w-full h-full object-cover" loading="lazy">
-                            </div>
-                            
-                            <div class="ml-3.5 flex-grow overflow-hidden">
-                                <h3 class="font-heading font-semibold text-[15px] text-stone-800 truncate leading-tight">${chapter.title}</h3>
-                                <div class="flex items-center gap-1.5 mt-0.5">
-                                    <span class="text-[10px] font-bold text-monk-secondary bg-orange-50 px-1.5 py-0.5 rounded">องค์ที่ ${toThaiNum(chapter.id)}</span>
-                                    <p class="text-[11px] sm:text-xs text-stone-500 truncate flex-grow">${chapter.desc}</p>
+                                <div class="absolute top-2 left-2 bg-white/90 backdrop-blur-sm text-monk-secondary text-[10px] font-bold font-heading px-1.5 py-0.5 rounded shadow-sm">
+                                    ${toThaiNum(chapter.id)}
                                 </div>
+                            </div>
+                            <div class="p-2.5 flex-grow flex flex-col">
+                                <h3 class="font-heading font-semibold text-[13px] sm:text-[14px] text-stone-800 line-clamp-1 leading-tight">${chapter.title}</h3>
+                                <p class="text-[10px] text-stone-500 line-clamp-2 mt-0.5 leading-snug">${chapter.desc}</p>
                             </div>
                         </div>
                         
-                        <div class="flex items-center pr-3 border-l border-stone-50 ml-1">
-                            <button onclick="window.toggleFavoriteInline(${chapter.id}, event)" class="w-10 h-10 rounded-full flex items-center justify-center transition-colors focus:outline-none ${isFav ? 'text-red-500 bg-red-50' : 'text-stone-300 hover:text-red-500 hover:bg-stone-50'}">
-                                <svg class="w-6 h-6" fill="${isFav ? 'currentColor' : 'none'}" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                        <div class="absolute top-1.5 right-1.5 z-10">
+                            <button onclick="window.toggleFavoriteInline(${chapter.id}, event)" class="w-7 h-7 rounded-full flex items-center justify-center bg-white/90 backdrop-blur-md transition-colors focus:outline-none shadow-sm ${isFav ? 'text-red-500' : 'text-stone-400 hover:text-red-500'}">
+                                <svg class="w-4 h-4" fill="${isFav ? 'currentColor' : 'none'}" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
                             </button>
                         </div>
                     `;
@@ -465,10 +464,9 @@
             window.renderList(filtered, false); 
         });
 
-        // 🟢 ตั้งค่าปุ่มใน Bottom Sheet (แยกทำงานต่างกัน)
+        // 🟢 ตั้งค่าปุ่มใน Bottom Sheet (ไม่มี URL = ไร้สี และแจ้งเตือน)
         window.setupSheetButton = function(btnId, url, isYoutube) {
             const btn = document.getElementById(btnId);
-            const iconCircle = btn.querySelector('.icon-circle');
 
             btn.onclick = () => {
                 if (!url) {
@@ -476,8 +474,8 @@
                     return;
                 }
                 
-                // หากเป็นการ์ตูน หรือ หนังสือ ให้เปิดแท็บใหม่ (_blank)
                 // หากเป็น Video หรือ Podcast ให้เปิด Modal ภายในเว็บ
+                // หากเป็นการ์ตูน หรือ หนังสือ ให้เปิดแท็บใหม่ (_blank)
                 if (isYoutube) {
                     window.openYoutube(url);
                 } else {
@@ -485,13 +483,13 @@
                 }
             };
             
-            // ทำให้สีจางลงนิดหน่อยถ้ายังไม่มีข้อมูล แต่ยังคลิกเพื่อโชว์แจ้งเตือนได้
+            // ทำให้เป็นขาวดำ(grayscale) และลดความชัด หากยังไม่ได้ใส่ URL
             if (url) {
-                btn.style.opacity = '1';
-                if(iconCircle) iconCircle.classList.remove('grayscale');
+                btn.classList.remove('grayscale', 'opacity-50');
+                btn.classList.add('opacity-100');
             } else {
-                btn.style.opacity = '0.5';
-                if(iconCircle) iconCircle.classList.add('grayscale');
+                btn.classList.remove('opacity-100');
+                btn.classList.add('grayscale', 'opacity-50');
             }
         }
 
@@ -517,7 +515,6 @@
             document.getElementById('bottomSheet').classList.add('open');
         }
 
-        // 🟢 ปิดหน้าต่าง Dialog
         window.closeSheet = function() {
             document.getElementById('backdrop').classList.remove('open');
             document.getElementById('bottomSheet').classList.remove('open');
@@ -590,11 +587,12 @@
                 const svg = btn.querySelector('svg');
                 
                 if (myFavorites.includes(id)) {
-                    btn.className = "w-10 h-10 rounded-full flex items-center justify-center transition-colors focus:outline-none text-red-500 bg-red-50";
                     svg.setAttribute('fill', 'currentColor');
+                    svg.classList.replace('text-stone-400', 'text-red-500');
+                    svg.classList.replace('hover:text-red-500', 'text-red-500');
                 } else {
-                    btn.className = "w-10 h-10 rounded-full flex items-center justify-center transition-colors focus:outline-none text-stone-300 hover:text-red-500 hover:bg-stone-50";
                     svg.setAttribute('fill', 'none');
+                    svg.classList.replace('text-red-500', 'text-stone-400');
                 }
             }
         }
