@@ -142,7 +142,6 @@
             <p class="text-base font-heading font-medium text-stone-500" id="noResultsText">ไม่พบรายนามพระสาวก</p>
         </div>
 
-        <!-- 🟢 เปลี่ยนคลาสเป็น grid 2 คอลัมน์ -->
         <div id="chapterList" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 pb-6">
             <!-- Cards Items -->
         </div>
@@ -261,109 +260,115 @@
         const BASE_URL = "https://sites.google.com/view/anuphudhha";
         const DEFAULT_IMAGE_URL = 'https://images.unsplash.com/photo-1540455855018-c2b99fa2e41a?auto=format&fit=crop&q=80&w=200';
 
-        // ✅ ฟังก์ชัน toSlug แก้ไขใหม่! ไม่ลบสระและวรรณยุกต์ไทยออก เพื่อให้ตรงกับ URL บน Google Sites เป๊ะๆ
         function toSlug(s){
             return s.trim()
-                .replace(/[\*]/g,"")             // ตัดเครื่องหมาย * ทิ้ง
-                .replace(/\s+/g,"-")             // เปลี่ยนช่องว่างเป็นขีด (-)
-                .replace(/[^\wก-๙-]+/g,"-")      // เก็บอักขระไทย อังกฤษ ตัวเลข และขีดไว้ นอกนั้นเปลี่ยนเป็นขีด
-                .replace(/-+/g,"-")              // ยุบขีดที่ซ้ำกัน
-                .replace(/^-|-$/g,"")            // ตัดขีดหน้า/หลังทิ้ง
+                .replace(/[\*]/g,"")             
+                .replace(/\s+/g,"-")             
+                .replace(/[^\wก-๙-]+/g,"-")      
+                .replace(/-+/g,"-")              
+                .replace(/^-|-$/g,"")            
                 .toLowerCase();
         }
 
+        // ✅ ตรงนี้คือจุดที่คุณสามารถปรับ URL, ภาพ ของแต่ละองค์ได้อย่างอิสระ
+        // image = ลิงก์รูปภาพ (ถ้าปล่อยว่าง "" จะดึงรูปเริ่มต้น)
+        // book = ลิงก์หนังสือ (ถ้าปล่อยว่าง "" จะดึงลิงก์จากชื่ออัตโนมัติ)
+        // cartoon = ลิงก์การ์ตูน (ถ้าปล่อยว่าง "" ปุ่มจะจาง และกดแล้วแจ้งเตือน)
+        // video = ลิงก์วิดีโอ YouTube (ถ้าปล่อยว่าง "" ปุ่มจะจาง และกดแล้วแจ้งเตือน)
+        // podcast = ลิงก์พอดแคสต์ YouTube (ถ้าปล่อยว่าง "" ปุ่มจะจาง และกดแล้วแจ้งเตือน)
+        
         const chapterData = [
-            { id: 1, title: "พระอัญญาโกณฑัญญะ", desc: "ผู้รู้ราตรีนาน ภิกษุรูปแรกในพระพุทธศาสนา" },
-            { id: 2, title: "พระวัปปะ", desc: "หนึ่งในปัญจวัคคีย์ ผู้บรรลุธรรมเป็นรูปที่สอง" },
-            { id: 3, title: "พระภัททิยะ", desc: "หนึ่งในปัญจวัคคีย์ พระมหาสาวกผู้สละราชสมบัติ" },
-            { id: 4, title: "พระมหานามะ", desc: "หนึ่งในปัญจวัคคีย์ ผู้มีบทบาทในยุคต้น" },
-            { id: 5, title: "พระอัสสชิ", desc: "หนึ่งในปัญจวัคคีย์ อาจารย์ของพระสารีบุตร" },
-            { id: 6, title: "พระยสะ", desc: "บุตรเศรษฐีผู้เบื่อหน่ายโลก สู่ความหลุดพ้น" },
-            { id: 7, title: "พระวิมละ", desc: "สหายพระยสะ ผู้เลื่อมใสและออกบวชตาม" },
-            { id: 8, title: "พระสุพาหุ", desc: "สหายพระยสะ หนึ่งในพระอรหันต์ชุดแรก" },
-            { id: 9, title: "พระปุณณชิ", desc: "สหายพระยสะ ผู้บรรลุธรรมตามพระศาสดา" },
-            { id: 10, title: "พระควัมปติ", desc: "สหายพระยสะ ผู้มีฤทธิ์ห้ามกระแสน้ำได้" },
-            { id: 11, title: "พระอุรุเวลกัสสปะ", desc: "อดีตชฎิล ผู้เลิศทางมีบริวารมาก" },
-            { id: 12, title: "พระนทีกัสสปะ", desc: "ชฎิลผู้พี่น้อง ผู้ละทิ้งลัทธิเดิม" },
-            { id: 13, title: "พระคยากัสสปะ", desc: "ชฎิลผู้พี่น้อง บรรลุอรหันต์พร้อมบริวาร" },
-            { id: 14, title: "พระสารีบุตร", desc: "อัครสาวกเบื้องขวา เลิศทางผู้มีปัญญามาก" },
-            { id: 15, title: "พระมหาโมคคัลลานะ", desc: "อัครสาวกเบื้องซ้าย เลิศทางผู้มีฤทธิ์มาก" },
-            { id: 16, title: "พระมหากัสสปะ", desc: "ผู้เลิศทางธุดงควัตร และประธานปฐมสังคายนา" },
-            { id: 17, title: "พระมหากัจจายนะ", desc: "ผู้เลิศทางอธิบายความย่อให้พิสดาร" },
-            { id: 18, title: "พระมหาโกฏฐิตะ", desc: "ผู้เลิศทางปฏิสัมภิทาแตกฉาน" },
-            { id: 19, title: "พระมหากัปปินะ", desc: "ผู้เลิศทางให้โอวาทภิกษุ" },
-            { id: 20, title: "พระมหาจุนทะ", desc: "น้องชายพระสารีบุตร ผู้มีธรรมกถาไพเราะ" },
-            { id: 21, title: "พระอนุรุทธะ", desc: "ผู้เลิศทางทิพยจักษุ (ตาทิพย์)" },
-            { id: 22, title: "พระกังขาเรวตะ", desc: "ผู้เลิศทางเพ่งฌาน" },
-            { id: 23, title: "พระอานนท์", desc: "พุทธอุปัฏฐาก เลิศทางพหูสูต ผู้ทรงจำพุทธวจนะ" },
-            { id: 24, title: "พระนันทกะ", desc: "ผู้เลิศทางให้โอวาทภิกษุณี" },
-            { id: 25, title: "พระภคุ", desc: "พระประยูรญาติศากยวงศ์ผู้ออกบวช" },
-            { id: 26, title: "พระนันทะ", desc: "พุทธอนุชา ผู้เลิศทางอินทรียสังวร" },
-            { id: 27, title: "พระกิมพิละ", desc: "ผู้กวดขันในการอยู่ร่วมกันด้วยความสามัคคี" },
-            { id: 28, title: "พระภัททิยกาฬิโคธาบุตร", desc: "ผู้เลิศทางเกิดในตระกูลสูง" },
-            { id: 29, title: "พระราหุล", desc: "พุทธโอรส ผู้เลิศทางใคร่ในการศึกษา" },
-            { id: 30, title: "พระสีวลี", desc: "ผู้เลิศทางมีลาภมาก" },
-            { id: 31, title: "พระอุบาลี", desc: "อดีตช่างกัลบก ผู้เลิศทางทรงจำพระวินัย" },
-            { id: 32, title: "พระทัพพมัลลบุตร", desc: "ผู้เลิศทางจัดเสนาสนะ" },
-            { id: 33, title: "พระอุปเสนวังคันตบุตร", desc: "ผู้เลิศทางนำมาซึ่งความเลื่อมใส" },
-            { id: 34, title: "พระขทิรวนิยเรวตะ", desc: "ผู้เลิศทางผู้อยู่ป่า" },
-            { id: 35, title: "พระปุณณมันตานีบุตร", desc: "ผู้เลิศทางพระธรรมกถึก (นักเทศน์)" },
-            { id: 36, title: "พระปุณณสุนาปรันตะ", desc: "ผู้มีอดทนเป็นเลิศในการเผยแผ่ธรรม" },
-            { id: 37, title: "พระกาฬุทายี", desc: "ผู้เลิศทางชักชวนตระกูลให้เลื่อมใส" },
-            { id: 38, title: "พระโสณกุฏิกัณณะ", desc: "ผู้เลิศทางแสดงธรรมด้วยถ้อยคำไพเราะ" },
-            { id: 39, title: "พระโสณโกฬิวิสะ", desc: "ผู้เลิศทางปรารภความเพียร" },
-            { id: 40, title: "พระราธะ", desc: "ผู้เลิศทางมีปฏิภาณ" },
-            { id: 41, title: "พระสุภูติ", desc: "ผู้เลิศทางทักขิเณยยบุคคลและอรณวิหาร" },
-            { id: 42, title: "พระจูฬปันถกะ", desc: "ผู้เลิศทางมโนมยิทธิ และชำนาญการเนรมิตกาย" },
-            { id: 43, title: "พระมหาปันถกะ", desc: "ผู้เลิศทางเจริญวิปัสสนา" },
-            { id: 44, title: "พระพากุละ", desc: "ผู้เลิศทางมีอาพาธน้อย (สุขภาพแข็งแรงที่สุด)" },
-            { id: 45, title: "พระกุณฑธานะ", desc: "ผู้เลิศทางรับสลากเป็นรูปแรก" },
-            { id: 46, title: "พระวังคีสะ", desc: "ผู้เลิศทางมีปฏิภาณรวดเร็ว" },
-            { id: 47, title: "พระโสภิตะ", desc: "ผู้เลิศทางระลึกชาติได้ (ปุพเพนิวาสานุสสติญาณ)" },
-            { id: 48, title: "พระอุปวานะ", desc: "อดีตพุทธอุปัฏฐากผู้ใกล้ชิด" },
-            { id: 49, title: "พระเมฆิยะ", desc: "อดีตพุทธอุปัฏฐากผู้ถูกเตือนสติเรื่องการปลีกวิเวก" },
-            { id: 50, title: "พระสาคตะ", desc: "ผู้เลิศทางเข้าเตโชธาตุ" },
-            { id: 51, title: "พระนาคิตะ", desc: "พุทธอุปัฏฐากในยุคต้น" },
-            { id: 52, title: "พระลกุณฏกภัททิยะ", desc: "ผู้มีรูปร่างเล็กแต่เสียงไพเราะ" },
-            { id: 53, title: "พระปิณโฑลภารทวาชะ", desc: "ผู้เลิศทางบันลือสีหนาท" },
-            { id: 54, title: "พระองคุลิมาละ", desc: "มหาโจรผู้กลับใจสู่ร่มกาสาวพัสตร์ และบรรลุอรหันต์" },
-            { id: 55, title: "พระรัฐปาละ", desc: "ผู้เลิศทางบวชด้วยศรัทธาแรงกล้า" },
-            { id: 56, title: "พระปิลินทวัจฉะ", desc: "ผู้เลิศทางเป็นที่รักของเทวดา" },
-            { id: 57, title: "พระพาหิยทารุจีริยะ", desc: "ผู้เลิศทางตรัสรู้เร็วพลัน (ขิปปาภิญญา)" },
-            { id: 58, title: "พระวักกลิ", desc: "ผู้เลิศทางสัทธาวิมุตติ (หลุดพ้นด้วยศรัทธา)" },
-            { id: 59, title: "พระมหาอุทายี", desc: "พระเถระผู้มีบทบาทสำคัญในการเผยแผ่" },
-            { id: 60, title: "พระจูฬอุทายี", desc: "พระเถระผู้เป็นที่เคารพศรัทธา" },
-            { id: 61, title: "พระอชิตะ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ" },
-            { id: 62, title: "พระติสสเมตเตยยะ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ" },
-            { id: 63, title: "พระปุณณกะ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ" },
-            { id: 64, title: "พระเมตตคู", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ" },
-            { id: 65, title: "พระโธตกะ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ" },
-            { id: 66, title: "พระอุปสีวะ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ" },
-            { id: 67, title: "พระนันทมาณพ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ" },
-            { id: 68, title: "พระเหมกะ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ" },
-            { id: 69, title: "พระโตเทยยะ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ" },
-            { id: 70, title: "พระกัปปะ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ" },
-            { id: 71, title: "พระชตุกัณณี", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ" },
-            { id: 72, title: "พระภัทราวุธะ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ" },
-            { id: 73, title: "พระอุทยะ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ" },
-            { id: 74, title: "พระโปสาละ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ" },
-            { id: 75, title: "พระโมฆราช", desc: "ผู้เลิศทางทรงจีวรเศร้าหมอง ศิษย์พราหมณ์พาวรี" },
-            { id: 76, title: "พระปิงคิยะ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ" },
-            { id: 77, title: "พระสภิยะ", desc: "ปริพาชกผู้ถามปัญหาธรรมจนบรรลุอรหันต์" },
-            { id: 78, title: "พระเสละ", desc: "พราหมณ์ผู้เลื่อมใสพุทธมหาปุริสลักขณะ" },
-            { id: 79, title: "พระโคธิกะ", desc: "ผู้บรรลุอรหันต์ขณะถูกโรคเบียดเบียน" },
-            { id: 80, title: "พระยโสชะ", desc: "ประธานแห่งภิกษุ ๕๐๐ รูปที่พระพุทธองค์ทรงสรรเสริญ" }
+            { id: 1, title: "พระอัญญาโกณฑัญญะ", desc: "ผู้รู้ราตรีนาน ภิกษุรูปแรกในพระพุทธศาสนา", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 2, title: "พระวัปปะ", desc: "หนึ่งในปัญจวัคคีย์ ผู้บรรลุธรรมเป็นรูปที่สอง", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 3, title: "พระภัททิยะ", desc: "หนึ่งในปัญจวัคคีย์ พระมหาสาวกผู้สละราชสมบัติ", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 4, title: "พระมหานามะ", desc: "หนึ่งในปัญจวัคคีย์ ผู้มีบทบาทในยุคต้น", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 5, title: "พระอัสสชิ", desc: "หนึ่งในปัญจวัคคีย์ อาจารย์ของพระสารีบุตร", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 6, title: "พระยสะ", desc: "บุตรเศรษฐีผู้เบื่อหน่ายโลก สู่ความหลุดพ้น", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 7, title: "พระวิมละ", desc: "สหายพระยสะ ผู้เลื่อมใสและออกบวชตาม", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 8, title: "พระสุพาหุ", desc: "สหายพระยสะ หนึ่งในพระอรหันต์ชุดแรก", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 9, title: "พระปุณณชิ", desc: "สหายพระยสะ ผู้บรรลุธรรมตามพระศาสดา", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 10, title: "พระควัมปติ", desc: "สหายพระยสะ ผู้มีฤทธิ์ห้ามกระแสน้ำได้", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 11, title: "พระอุรุเวลกัสสปะ", desc: "อดีตชฎิล ผู้เลิศทางมีบริวารมาก", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 12, title: "พระนทีกัสสปะ", desc: "ชฎิลผู้พี่น้อง ผู้ละทิ้งลัทธิเดิม", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 13, title: "พระคยากัสสปะ", desc: "ชฎิลผู้พี่น้อง บรรลุอรหันต์พร้อมบริวาร", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 14, title: "พระสารีบุตร", desc: "อัครสาวกเบื้องขวา เลิศทางผู้มีปัญญามาก", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 15, title: "พระมหาโมคคัลลานะ", desc: "อัครสาวกเบื้องซ้าย เลิศทางผู้มีฤทธิ์มาก", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 16, title: "พระมหากัสสปะ", desc: "ผู้เลิศทางธุดงควัตร และประธานปฐมสังคายนา", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 17, title: "พระมหากัจจายนะ", desc: "ผู้เลิศทางอธิบายความย่อให้พิสดาร", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 18, title: "พระมหาโกฏฐิตะ", desc: "ผู้เลิศทางปฏิสัมภิทาแตกฉาน", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 19, title: "พระมหากัปปินะ", desc: "ผู้เลิศทางให้โอวาทภิกษุณี", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 20, title: "พระมหาจุนทะ", desc: "น้องชายพระสารีบุตร ผู้มีธรรมกถาไพเราะ", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 21, title: "พระอนุรุทธะ", desc: "ผู้เลิศทางทิพยจักษุ (ตาทิพย์)", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 22, title: "พระกังขาเรวตะ", desc: "ผู้เลิศทางเพ่งฌาน", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 23, title: "พระอานนท์", desc: "พุทธอุปัฏฐาก เลิศทางพหูสูต ผู้ทรงจำพุทธวจนะ", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 24, title: "พระนันทกะ", desc: "ผู้เลิศทางให้โอวาทภิกษุณี", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 25, title: "พระภคุ", desc: "พระประยูรญาติศากยวงศ์ผู้ออกบวช", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 26, title: "พระนันทะ", desc: "พุทธอนุชา ผู้เลิศทางอินทรียสังวร", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 27, title: "พระกิมพิละ", desc: "ผู้กวดขันในการอยู่ร่วมกันด้วยความสามัคคี", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 28, title: "พระภัททิยกาฬิโคธาบุตร", desc: "ผู้เลิศทางเกิดในตระกูลสูง", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 29, title: "พระราหุล", desc: "พุทธโอรส ผู้เลิศทางใคร่ในการศึกษา", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 30, title: "พระสีวลี", desc: "ผู้เลิศทางมีลาภมาก", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 31, title: "พระอุบาลี", desc: "อดีตช่างกัลบก ผู้เลิศทางทรงจำพระวินัย", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 32, title: "พระทัพพมัลลบุตร", desc: "ผู้เลิศทางจัดเสนาสนะ", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 33, title: "พระอุปเสนวังคันตบุตร", desc: "ผู้เลิศทางนำมาซึ่งความเลื่อมใส", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 34, title: "พระขทิรวนิยเรวตะ", desc: "ผู้เลิศทางผู้อยู่ป่า", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 35, title: "พระปุณณมันตานีบุตร", desc: "ผู้เลิศทางพระธรรมกถึก (นักเทศน์)", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 36, title: "พระปุณณสุนาปรันตะ", desc: "ผู้มีอดทนเป็นเลิศในการเผยแผ่ธรรม", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 37, title: "พระกาฬุทายี", desc: "ผู้เลิศทางชักชวนตระกูลให้เลื่อมใส", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 38, title: "พระโสณกุฏิกัณณะ", desc: "ผู้เลิศทางแสดงธรรมด้วยถ้อยคำไพเราะ", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 39, title: "พระโสณโกฬิวิสะ", desc: "ผู้เลิศทางปรารภความเพียร", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 40, title: "พระราธะ", desc: "ผู้เลิศทางมีปฏิภาณ", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 41, title: "พระสุภูติ", desc: "ผู้เลิศทางทักขิเณยยบุคคลและอรณวิหาร", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 42, title: "พระจูฬปันถกะ", desc: "ผู้เลิศทางมโนมยิทธิ และชำนาญการเนรมิตกาย", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 43, title: "พระมหาปันถกะ", desc: "ผู้เลิศทางเจริญวิปัสสนา", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 44, title: "พระพากุละ", desc: "ผู้เลิศทางมีอาพาธน้อย (สุขภาพแข็งแรงที่สุด)", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 45, title: "พระกุณฑธานะ", desc: "ผู้เลิศทางรับสลากเป็นรูปแรก", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 46, title: "พระวังคีสะ", desc: "ผู้เลิศทางมีปฏิภาณรวดเร็ว", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 47, title: "พระโสภิตะ", desc: "ผู้เลิศทางระลึกชาติได้ (ปุพเพนิวาสานุสสติญาณ)", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 48, title: "พระอุปวานะ", desc: "อดีตพุทธอุปัฏฐากผู้ใกล้ชิด", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 49, title: "พระเมฆิยะ", desc: "อดีตพุทธอุปัฏฐากผู้ถูกเตือนสติเรื่องการปลีกวิเวก", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 50, title: "พระสาคตะ", desc: "ผู้เลิศทางเข้าเตโชธาตุ", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 51, title: "พระนาคิตะ", desc: "พุทธอุปัฏฐากในยุคต้น", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 52, title: "พระลกุณฏกภัททิยะ", desc: "ผู้มีรูปร่างเล็กแต่เสียงไพเราะ", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 53, title: "พระปิณโฑลภารทวาชะ", desc: "ผู้เลิศทางบันลือสีหนาท", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 54, title: "พระองคุลิมาละ", desc: "มหาโจรผู้กลับใจสู่ร่มกาสาวพัสตร์ และบรรลุอรหันต์", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 55, title: "พระรัฐปาละ", desc: "ผู้เลิศทางบวชด้วยศรัทธาแรงกล้า", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 56, title: "พระปิลินทวัจฉะ", desc: "ผู้เลิศทางเป็นที่รักของเทวดา", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 57, title: "พระพาหิยทารุจีริยะ", desc: "ผู้เลิศทางตรัสรู้เร็วพลัน (ขิปปาภิญญา)", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 58, title: "พระวักกลิ", desc: "ผู้เลิศทางสัทธาวิมุตติ (หลุดพ้นด้วยศรัทธา)", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 59, title: "พระมหาอุทายี", desc: "พระเถระผู้มีบทบาทสำคัญในการเผยแผ่", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 60, title: "พระจูฬอุทายี", desc: "พระเถระผู้เป็นที่เคารพศรัทธา", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 61, title: "พระอชิตะ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 62, title: "พระติสสเมตเตยยะ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 63, title: "พระปุณณกะ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 64, title: "พระเมตตคู", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 65, title: "พระโธตกะ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 66, title: "พระอุปสีวะ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 67, title: "พระนันทมาณพ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 68, title: "พระเหมกะ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 69, title: "พระโตเทยยะ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 70, title: "พระกัปปะ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 71, title: "พระชตุกัณณี", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 72, title: "พระภัทราวุธะ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 73, title: "พระอุทยะ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 74, title: "พระโปสาละ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 75, title: "พระโมฆราช", desc: "ผู้เลิศทางทรงจีวรเศร้าหมอง ศิษย์พราหมณ์พาวรี", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 76, title: "พระปิงคิยะ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 77, title: "พระสภิยะ", desc: "ปริพาชกผู้ถามปัญหาธรรมจนบรรลุอรหันต์", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 78, title: "พระเสละ", desc: "พราหมณ์ผู้เลื่อมใสพุทธมหาปุริสลักขณะ", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 79, title: "พระโคธิกะ", desc: "ผู้บรรลุอรหันต์ขณะถูกโรคเบียดเบียน", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } },
+            { id: 80, title: "พระยโสชะ", desc: "ประธานแห่งภิกษุ ๕๐๐ รูปที่พระพุทธองค์ทรงสรรเสริญ", image: "", urls: { book: "", cartoon: "", video: "", podcast: "" } }
         ];
 
-        // ✅ อัปเดตข้อมูล URL สำหรับลิงก์ต่างๆ
+        // ประมวลผลข้อมูล (ถ้าไม่ได้ระบุข้อมูลไว้ ระบบจะสร้างให้อัตโนมัติ)
         const chapters = chapterData.map(ch => ({
             ...ch,
-            image: DEFAULT_IMAGE_URL,
+            image: ch.image || DEFAULT_IMAGE_URL,
             urls: {
-                book: `${BASE_URL}/${toSlug(ch.title)}`, // เปิด _blank ตาม Slug ใหม่ที่แก้ไขแล้ว
-                cartoon: '', // ตัวอย่าง: ไม่มีลิงก์ จะแสดงปุ่มเป็นสีเทาและแจ้งเตือนเมื่อคลิก
-                video: 'https://www.youtube.com/watch?v=jNQXAC9IVRw', // ตัวอย่าง: มีลิงก์ จะเปิด Modal ภายในเว็บ
-                podcast: 'https://www.youtube.com/watch?v=jNQXAC9IVRw' // ตัวอย่าง: มีลิงก์ จะเปิด Modal ภายในเว็บ
+                book: ch.urls.book || `${BASE_URL}/${toSlug(ch.title)}`, // ถ้าระบุลิงก์เองจะใช้ลิงก์ที่ระบุ ถ้าไม่ระบุจะสร้างอัตโนมัติ
+                cartoon: ch.urls.cartoon || '', // ถ้าไม่ได้ระบุจะไม่มีสี
+                video: ch.urls.video || '', // ถ้าไม่ได้ระบุจะไม่มีสี
+                podcast: ch.urls.podcast || '' // ถ้าไม่ได้ระบุจะไม่มีสี
             }
         }));
 
@@ -402,7 +407,6 @@
             else dot.classList.add('hidden');
         }
 
-        // 🟢 แสดงผลแบบ 2 คอลัมน์ (Grid 2 Cols) 
         window.renderList = function(data, stagger = true) {
             listContainer.innerHTML = '';
             itemCount.textContent = `${data.length} องค์`;
@@ -423,7 +427,6 @@
                     if(stagger) item.style = delay;
                     
                     item.innerHTML = `
-                        <!-- 🟢 ครอบคลุมทั้งรูปภาพและข้อความให้คลิกแล้วเกิด openSheet -->
                         <div class="clickable-area flex flex-col h-full cursor-pointer" onclick="window.openSheet(${chapter.id})">
                             <div class="relative w-full aspect-square bg-stone-100">
                                 <img src="${chapter.image}" alt="${chapter.title}" class="w-full h-full object-cover" loading="lazy">
@@ -463,7 +466,6 @@
             window.renderList(filtered, false); 
         });
 
-        // 🟢 ตั้งค่าปุ่มใน Bottom Sheet 
         window.setupSheetButton = function(btnId, url, isYoutube) {
             const btn = document.getElementById(btnId);
             const iconCircle = btn.querySelector('.icon-circle');
@@ -474,8 +476,6 @@
                     return;
                 }
                 
-                // หากเป็น Video หรือ Podcast ให้เปิด Modal ภายในเว็บ
-                // หากเป็นการ์ตูน หรือ หนังสือ ให้เปิดแท็บใหม่ (_blank)
                 if (isYoutube) {
                     window.openYoutube(url);
                 } else {
@@ -483,7 +483,6 @@
                 }
             };
             
-            // ทำให้เป็นขาวดำ(grayscale) และลดความชัด หากยังไม่ได้ใส่ URL
             if (url) {
                 btn.classList.remove('grayscale', 'opacity-50');
                 btn.classList.add('opacity-100');
@@ -495,7 +494,6 @@
             }
         }
 
-        // 🟢 เปิดหน้าต่าง Dialog (Bottom Sheet)
         window.openSheet = function(id) {
             const ch = chapters.find(c => c.id === id);
             if (!ch) return;
@@ -507,7 +505,6 @@
             
             window.updateSheetFavoriteIcon();
             
-            // ตั้งค่าปุ่ม: isYoutube=false (เปิด _blank), isYoutube=true (เปิด Modal)
             window.setupSheetButton('btn-book', ch.urls.book, false);
             window.setupSheetButton('btn-cartoon', ch.urls.cartoon, false);
             window.setupSheetButton('btn-video', ch.urls.video, true);
@@ -659,7 +656,6 @@
             }
         }
 
-        // 🟢 ระบบเปิด YouTube ภายในเว็บ
         window.openYoutube = function(url) {
             let videoId = '';
             if (url.includes('youtu.be/')) videoId = url.split('youtu.be/')[1].split('?')[0];
