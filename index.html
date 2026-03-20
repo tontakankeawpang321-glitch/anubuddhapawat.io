@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>อนุพุทธประวัติ ๘๐ พระองค์</title>
+    
+    <script>
+        window.tailwind = {
+            config: {
+                theme: {
+                    extend: {
+                        fontFamily: {
+                            sans: ['Sarabun', 'sans-serif'],
+                            heading: ['Prompt', 'sans-serif'],
+                        },
+                        colors: {
+                            monk: {
+                                50: '#fdf8f6',
+                                100: '#f2e8e5',
+                                200: '#eaddd7',
+                                primary: '#d97706', // Amber 600 - โทนจีวรสว่าง
+                                secondary: '#b45309', // Amber 700
+                                text: '#44403c', // Stone 700
+                                dark: '#1c1917', // Stone 900
+                            }
+                        },
+                        boxShadow: {
+                            'sm-soft': '0 2px 10px -2px rgba(0,0,0,0.04)',
+                            'float': '0 10px 30px -5px rgba(0,0,0,0.08)',
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            background-color: #fafaf9; 
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        ::-webkit-scrollbar { width: 0px; background: transparent; }
+        * { scrollbar-width: none; }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Bottom Sheet Animation */
+        .bottom-sheet {
+            transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transform: translateY(100%);
+        }
+        .bottom-sheet.open {
+            transform: translateY(0);
+        }
+        
+        .backdrop {
+            transition: opacity 0.3s ease;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .backdrop.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .glass-header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .clickable-area:active {
+            opacity: 0.7;
+            background-color: #f5f5f4;
+            border-radius: 1rem;
+        }
+    </style>
+</head>
+<body class="text-monk-text antialiased min-h-screen flex flex-col selection:bg-monk-primary selection:text-white pb-24">
+
+    <!-- Top Header -->
+    <header class="sticky top-0 z-40 glass-header">
+        <div class="max-w-3xl mx-auto px-4 py-3 sm:py-4 flex justify-between items-center">
+            <div>
+                <h1 class="text-lg sm:text-xl font-heading font-bold text-monk-dark leading-tight tracking-tight">อนุพุทธประวัติ</h1>
+                <p class="text-[11px] sm:text-xs text-monk-secondary font-medium">อสีติมหาสาวก ๘๐ พระองค์</p>
+            </div>
+            <button onclick="window.switchTab('fav')" id="btn-top-fav" class="p-2 rounded-full text-stone-400 hover:text-red-500 hover:bg-red-50 transition-colors focus:outline-none relative">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                <div id="fav-dot" class="hidden absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-white"></div>
+            </button>
+        </div>
+    </header>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-20 left-1/2 transform -translate-x-1/2 -translate-y-4 z-[70] transition-all duration-300 opacity-0 pointer-events-none">
+        <div class="bg-stone-800 text-white px-5 py-2.5 rounded-full shadow-lg font-heading text-sm flex items-center gap-2 whitespace-nowrap">
+            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span id="toastMessage">แจ้งเตือน</span>
+        </div>
+    </div>
+
+    <!-- Search Section -->
+    <section class="max-w-3xl mx-auto w-full px-4 pt-4 pb-2">
+        <div class="relative w-full">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                <svg class="h-5 w-5 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+            </div>
+            <input type="text" id="searchInput" placeholder="ค้นหาชื่อพระสาวก..." 
+                class="w-full pl-10 pr-4 py-3 bg-white border border-stone-200 rounded-xl shadow-sm-soft focus:outline-none focus:ring-1 focus:ring-monk-primary/50 focus:border-monk-primary text-[15px] font-sans transition-all placeholder:text-stone-400">
+        </div>
+        
+        <div class="flex justify-between items-end mt-5 mb-2 px-1">
+            <h2 id="sectionTitle" class="text-sm font-heading font-bold text-stone-800">รายนามทั้งหมด</h2>
+            <span id="itemCount" class="text-xs text-stone-400 font-medium">80 องค์</span>
+        </div>
+    </section>
+
+    <!-- Main Content: List View -->
+    <main class="flex-grow w-full max-w-3xl mx-auto px-4">
+        
+        <div id="noResults" class="hidden flex-col items-center justify-center py-16">
+            <div class="w-16 h-16 bg-stone-100 rounded-full flex items-center justify-center mb-3">
+                <svg class="w-8 h-8 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            </div>
+            <p class="text-base font-heading font-medium text-stone-500" id="noResultsText">ไม่พบรายนามพระสาวก</p>
+        </div>
+
+        <div id="chapterList" class="flex flex-col gap-2.5 pb-6">
+            <!-- List Items -->
+        </div>
+    </main>
+
+    <!-- Bottom Sheet (Options Dialog) -->
+    <div id="backdrop" class="fixed inset-0 bg-stone-900/30 backdrop z-50 backdrop-blur-sm" onclick="window.closeSheet()"></div>
+    
+    <div class="fixed inset-0 z-50 flex items-end justify-center pointer-events-none overflow-hidden">
+        <div id="bottomSheet" class="bottom-sheet bg-white w-full max-w-md rounded-t-3xl shadow-2xl pointer-events-auto flex flex-col max-h-[85vh]">
+            
+            <div class="w-full flex justify-center pt-3 pb-1" onclick="window.closeSheet()">
+                <div class="w-10 h-1 bg-stone-200 rounded-full cursor-pointer"></div>
+            </div>
+
+            <!-- Header of Sheet -->
+            <div class="px-5 py-3 flex justify-between items-start border-b border-stone-50">
+                <div class="pr-4">
+                    <span id="sheetOrder" class="text-[10px] font-bold font-heading text-monk-primary uppercase tracking-wider">องค์ที่ ๑</span>
+                    <h3 id="sheetTitle" class="text-xl font-heading font-bold text-monk-dark mt-0.5 leading-tight">ชื่อพระสาวก</h3>
+                    <p id="sheetDesc" class="text-sm text-stone-500 mt-1 line-clamp-2 leading-relaxed">คำอธิบาย</p>
+                </div>
+                <button onclick="window.toggleFavorite()" class="shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-stone-300 hover:text-red-500 bg-stone-50 active:scale-90 transition-all">
+                    <svg id="icon-favorite" class="w-6 h-6 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                </button>
+            </div>
+            
+            <!-- Body Options -->
+            <div class="px-4 pb-8 pt-3 overflow-y-auto">
+                <div class="flex flex-col gap-2">
+                    
+                    <button id="btn-book" class="flex items-center p-3.5 rounded-2xl bg-white border border-stone-100 shadow-sm-soft text-stone-700 active:bg-stone-50 transition-colors cursor-pointer">
+                        <div class="icon-circle w-10 h-10 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center mr-4 shrink-0 transition-all">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                        </div>
+                        <div class="text-left flex-grow">
+                            <div class="font-heading font-semibold text-[15px]">อ่านประวัติ</div>
+                            <div class="text-[11px] text-stone-400">บทความบนเว็บไซต์ (เปิดแท็บใหม่)</div>
+                        </div>
+                        <svg class="w-4 h-4 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+
+                    <button id="btn-cartoon" class="flex items-center p-3.5 rounded-2xl bg-white border border-stone-100 shadow-sm-soft text-stone-700 active:bg-stone-50 transition-colors cursor-pointer">
+                        <div class="icon-circle w-10 h-10 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mr-4 shrink-0 transition-all">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        </div>
+                        <div class="text-left flex-grow">
+                            <div class="font-heading font-semibold text-[15px]">ภาพการ์ตูน</div>
+                            <div class="text-[11px] text-stone-400">เข้าใจง่ายสำหรับเด็ก (เปิดแท็บใหม่)</div>
+                        </div>
+                        <svg class="w-4 h-4 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+                    
+                    <button id="btn-video" class="flex items-center p-3.5 rounded-2xl bg-white border border-stone-100 shadow-sm-soft text-stone-700 active:bg-stone-50 transition-colors cursor-pointer">
+                        <div class="icon-circle w-10 h-10 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mr-4 shrink-0 transition-all">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <div class="text-left flex-grow">
+                            <div class="font-heading font-semibold text-[15px]">ชมวิดีโอ</div>
+                            <div class="text-[11px] text-stone-400">ดูวิดีโอ YouTube (ภายในเว็บ)</div>
+                        </div>
+                        <svg class="w-4 h-4 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+
+                    <button id="btn-podcast" class="flex items-center p-3.5 rounded-2xl bg-white border border-stone-100 shadow-sm-soft text-stone-700 active:bg-stone-50 transition-colors cursor-pointer">
+                        <div class="icon-circle w-10 h-10 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center mr-4 shrink-0 transition-all">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
+                        </div>
+                        <div class="text-left flex-grow">
+                            <div class="font-heading font-semibold text-[15px]">ฟังเสียง (พอดแคสต์)</div>
+                            <div class="text-[11px] text-stone-400">ฟังเสียง YouTube (ภายในเว็บ)</div>
+                        </div>
+                        <svg class="w-4 h-4 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Bottom Nav -->
+    <div class="fixed bottom-6 left-0 w-full px-4 z-40 flex justify-center pointer-events-none">
+        <nav class="glass-header px-6 py-3 rounded-full shadow-float pointer-events-auto flex items-center gap-8 border border-white/40">
+            <button onclick="window.switchTab('home')" id="nav-home" class="flex flex-col items-center gap-1 text-monk-primary transition-colors focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                <span class="text-[10px] font-heading font-bold">หน้าแรก</span>
+            </button>
+            <div class="w-px h-8 bg-stone-200"></div>
+            <button onclick="window.switchTab('fav')" id="nav-fav" class="flex flex-col items-center gap-1 text-stone-400 hover:text-red-500 transition-colors focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                <span class="text-[10px] font-heading font-bold">บันทึกไว้</span>
+            </button>
+        </nav>
+    </div>
+
+    <button onclick="window.switchTab('home')" id="fab-home" class="hidden fixed bottom-24 right-4 sm:right-6 z-40 bg-white text-monk-primary p-3 rounded-full shadow-float border border-stone-100 active:scale-90 transition-all focus:outline-none">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+    </button>
+
+    <!-- YouTube Modal (ภายในเว็บ) -->
+    <div id="ytBackdrop" class="fixed inset-0 bg-black/95 backdrop z-[60]" onclick="window.closeYoutube()"></div>
+    <div id="ytModal" class="fixed inset-0 z-[60] flex flex-col items-center justify-center px-2 pointer-events-none opacity-0 transition-opacity duration-300">
+        <div class="w-full max-w-3xl bg-black rounded-xl overflow-hidden shadow-2xl pointer-events-auto flex flex-col">
+            <div class="px-3 py-2 flex justify-end bg-stone-900">
+                <button onclick="window.closeYoutube()" class="text-stone-400 hover:text-white bg-stone-800 rounded-full p-1.5 transition-colors focus:outline-none">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="relative w-full pb-[56.25%] bg-black">
+                <iframe id="youtubeIframe" class="absolute top-0 left-0 w-full h-full" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Data and Logic -->
+    <script>
+        // ✅ ประกาศฟังก์ชันลงใน window เพื่อป้องกันบั๊กเวลาฝังบน Google Sites
+        const BASE_URL = "https://sites.google.com/view/anuphudhha";
+        const DEFAULT_IMAGE_URL = 'https://images.unsplash.com/photo-1540455855018-c2b99fa2e41a?auto=format&fit=crop&q=80&w=200';
+
+        function toSlug(s){
+            const THAI_DIACRITICS = /[ัิ-ฺ็-๎]/g; 
+            return s.trim()
+                .replace(/[\*]/g,"")            
+                .replace(THAI_DIACRITICS,"")     
+                .replace(/\s+/g,"-")             
+                .replace(/[^\wก-๙-]+/g,"-")    
+                .replace(/-+/g,"-")              
+                .replace(/^-|-$/g,"")            
+                .toLowerCase();
+        }
+
+        const chapterData = [
+            { id: 1, title: "พระอัญญาโกณฑัญญะ", desc: "ผู้รู้ราตรีนาน ภิกษุรูปแรกในพระพุทธศาสนา" },
+            { id: 2, title: "พระวัปปะ", desc: "หนึ่งในปัญจวัคคีย์ ผู้บรรลุธรรมเป็นรูปที่สอง" },
+            { id: 3, title: "พระภัททิยะ", desc: "หนึ่งในปัญจวัคคีย์ พระมหาสาวกผู้สละราชสมบัติ" },
+            { id: 4, title: "พระมหานามะ", desc: "หนึ่งในปัญจวัคคีย์ ผู้มีบทบาทในยุคต้น" },
+            { id: 5, title: "พระอัสสชิ", desc: "หนึ่งในปัญจวัคคีย์ อาจารย์ของพระสารีบุตร" },
+            { id: 6, title: "พระยสะ", desc: "บุตรเศรษฐีผู้เบื่อหน่ายโลก สู่ความหลุดพ้น" },
+            { id: 7, title: "พระวิมละ", desc: "สหายพระยสะ ผู้เลื่อมใสและออกบวชตาม" },
+            { id: 8, title: "พระสุพาหุ", desc: "สหายพระยสะ หนึ่งในพระอรหันต์ชุดแรก" },
+            { id: 9, title: "พระปุณณชิ", desc: "สหายพระยสะ ผู้บรรลุธรรมตามพระศาสดา" },
+            { id: 10, title: "พระควัมปติ", desc: "สหายพระยสะ ผู้มีฤทธิ์ห้ามกระแสน้ำได้" },
+            { id: 11, title: "พระอุรุเวลกัสสปะ", desc: "อดีตชฎิล ผู้เลิศทางมีบริวารมาก" },
+            { id: 12, title: "พระนทีกัสสปะ", desc: "ชฎิลผู้พี่น้อง ผู้ละทิ้งลัทธิเดิม" },
+            { id: 13, title: "พระคยากัสสปะ", desc: "ชฎิลผู้พี่น้อง บรรลุอรหันต์พร้อมบริวาร" },
+            { id: 14, title: "พระสารีบุตร", desc: "อัครสาวกเบื้องขวา เลิศทางผู้มีปัญญามาก" },
+            { id: 15, title: "พระมหาโมคคัลลานะ", desc: "อัครสาวกเบื้องซ้าย เลิศทางผู้มีฤทธิ์มาก" },
+            { id: 16, title: "พระมหากัสสปะ", desc: "ผู้เลิศทางธุดงควัตร และประธานปฐมสังคายนา" },
+            { id: 17, title: "พระมหากัจจายนะ", desc: "ผู้เลิศทางอธิบายความย่อให้พิสดาร" },
+            { id: 18, title: "พระมหาโกฏฐิตะ", desc: "ผู้เลิศทางปฏิสัมภิทาแตกฉาน" },
+            { id: 19, title: "พระมหากัปปินะ", desc: "ผู้เลิศทางให้โอวาทภิกษุ" },
+            { id: 20, title: "พระมหาจุนทะ", desc: "น้องชายพระสารีบุตร ผู้มีธรรมกถาไพเราะ" },
+            { id: 21, title: "พระอนุรุทธะ", desc: "ผู้เลิศทางทิพยจักษุ (ตาทิพย์)" },
+            { id: 22, title: "พระกังขาเรวตะ", desc: "ผู้เลิศทางเพ่งฌาน" },
+            { id: 23, title: "พระอานนท์", desc: "พุทธอุปัฏฐาก เลิศทางพหูสูต ผู้ทรงจำพุทธวจนะ" },
+            { id: 24, title: "พระนันทกะ", desc: "ผู้เลิศทางให้โอวาทภิกษุณี" },
+            { id: 25, title: "พระภคุ", desc: "พระประยูรญาติศากยวงศ์ผู้ออกบวช" },
+            { id: 26, title: "พระนันทะ", desc: "พุทธอนุชา ผู้เลิศทางอินทรียสังวร" },
+            { id: 27, title: "พระกิมพิละ", desc: "ผู้กวดขันในการอยู่ร่วมกันด้วยความสามัคคี" },
+            { id: 28, title: "พระภัททิยกาฬิโคธาบุตร", desc: "ผู้เลิศทางเกิดในตระกูลสูง" },
+            { id: 29, title: "พระราหุล", desc: "พุทธโอรส ผู้เลิศทางใคร่ในการศึกษา" },
+            { id: 30, title: "พระสีวลี", desc: "ผู้เลิศทางมีลาภมาก" },
+            { id: 31, title: "พระอุบาลี", desc: "อดีตช่างกัลบก ผู้เลิศทางทรงจำพระวินัย" },
+            { id: 32, title: "พระทัพพมัลลบุตร", desc: "ผู้เลิศทางจัดเสนาสนะ" },
+            { id: 33, title: "พระอุปเสนวังคันตบุตร", desc: "ผู้เลิศทางนำมาซึ่งความเลื่อมใส" },
+            { id: 34, title: "พระขทิรวนิยเรวตะ", desc: "ผู้เลิศทางผู้อยู่ป่า" },
+            { id: 35, title: "พระปุณณมันตานีบุตร", desc: "ผู้เลิศทางพระธรรมกถึก (นักเทศน์)" },
+            { id: 36, title: "พระปุณณสุนาปรันตะ", desc: "ผู้มีอดทนเป็นเลิศในการเผยแผ่ธรรม" },
+            { id: 37, title: "พระกาฬุทายี", desc: "ผู้เลิศทางชักชวนตระกูลให้เลื่อมใส" },
+            { id: 38, title: "พระโสณกุฏิกัณณะ", desc: "ผู้เลิศทางแสดงธรรมด้วยถ้อยคำไพเราะ" },
+            { id: 39, title: "พระโสณโกฬิวิสะ", desc: "ผู้เลิศทางปรารภความเพียร" },
+            { id: 40, title: "พระราธะ", desc: "ผู้เลิศทางมีปฏิภาณ" },
+            { id: 41, title: "พระสุภูติ", desc: "ผู้เลิศทางทักขิเณยยบุคคลและอรณวิหาร" },
+            { id: 42, title: "พระจูฬปันถกะ", desc: "ผู้เลิศทางมโนมยิทธิ และชำนาญการเนรมิตกาย" },
+            { id: 43, title: "พระมหาปันถกะ", desc: "ผู้เลิศทางเจริญวิปัสสนา" },
+            { id: 44, title: "พระพากุละ", desc: "ผู้เลิศทางมีอาพาธน้อย (สุขภาพแข็งแรงที่สุด)" },
+            { id: 45, title: "พระกุณฑธานะ", desc: "ผู้เลิศทางรับสลากเป็นรูปแรก" },
+            { id: 46, title: "พระวังคีสะ", desc: "ผู้เลิศทางมีปฏิภาณรวดเร็ว" },
+            { id: 47, title: "พระโสภิตะ", desc: "ผู้เลิศทางระลึกชาติได้ (ปุพเพนิวาสานุสสติญาณ)" },
+            { id: 48, title: "พระอุปวานะ", desc: "อดีตพุทธอุปัฏฐากผู้ใกล้ชิด" },
+            { id: 49, title: "พระเมฆิยะ", desc: "อดีตพุทธอุปัฏฐากผู้ถูกเตือนสติเรื่องการปลีกวิเวก" },
+            { id: 50, title: "พระสาคตะ", desc: "ผู้เลิศทางเข้าเตโชธาตุ" },
+            { id: 51, title: "พระนาคิตะ", desc: "พุทธอุปัฏฐากในยุคต้น" },
+            { id: 52, title: "พระลกุณฏกภัททิยะ", desc: "ผู้มีรูปร่างเล็กแต่เสียงไพเราะ" },
+            { id: 53, title: "พระปิณโฑลภารทวาชะ", desc: "ผู้เลิศทางบันลือสีหนาท" },
+            { id: 54, title: "พระองคุลิมาละ", desc: "มหาโจรผู้กลับใจสู่ร่มกาสาวพัสตร์ และบรรลุอรหันต์" },
+            { id: 55, title: "พระรัฐปาละ", desc: "ผู้เลิศทางบวชด้วยศรัทธาแรงกล้า" },
+            { id: 56, title: "พระปิลินทวัจฉะ", desc: "ผู้เลิศทางเป็นที่รักของเทวดา" },
+            { id: 57, title: "พระพาหิยทารุจีริยะ", desc: "ผู้เลิศทางตรัสรู้เร็วพลัน (ขิปปาภิญญา)" },
+            { id: 58, title: "พระวักกลิ", desc: "ผู้เลิศทางสัทธาวิมุตติ (หลุดพ้นด้วยศรัทธา)" },
+            { id: 59, title: "พระมหาอุทายี", desc: "พระเถระผู้มีบทบาทสำคัญในการเผยแผ่" },
+            { id: 60, title: "พระจูฬอุทายี", desc: "พระเถระผู้เป็นที่เคารพศรัทธา" },
+            { id: 61, title: "พระอชิตะ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ" },
+            { id: 62, title: "พระติสสเมตเตยยะ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ" },
+            { id: 63, title: "พระปุณณกะ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ" },
+            { id: 64, title: "พระเมตตคู", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ" },
+            { id: 65, title: "พระโธตกะ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ" },
+            { id: 66, title: "พระอุปสีวะ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ" },
+            { id: 67, title: "พระนันทมาณพ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ" },
+            { id: 68, title: "พระเหมกะ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ" },
+            { id: 69, title: "พระโตเทยยะ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ" },
+            { id: 70, title: "พระกัปปะ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ" },
+            { id: 71, title: "พระชตุกัณณี", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ" },
+            { id: 72, title: "พระภัทราวุธะ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ" },
+            { id: 73, title: "พระอุทยะ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ" },
+            { id: 74, title: "พระโปสาละ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ" },
+            { id: 75, title: "พระโมฆราช", desc: "ผู้เลิศทางทรงจีวรเศร้าหมอง ศิษย์พราหมณ์พาวรี" },
+            { id: 76, title: "พระปิงคิยะ", desc: "ศิษย์พราหมณ์พาวรี ๑๖ มาณพ" },
+            { id: 77, title: "พระสภิยะ", desc: "ปริพาชกผู้ถามปัญหาธรรมจนบรรลุอรหันต์" },
+            { id: 78, title: "พระเสละ", desc: "พราหมณ์ผู้เลื่อมใสพุทธมหาปุริสลักขณะ" },
+            { id: 79, title: "พระโคธิกะ", desc: "ผู้บรรลุอรหันต์ขณะถูกโรคเบียดเบียน" },
+            { id: 80, title: "พระยโสชะ", desc: "ประธานแห่งภิกษุ ๕๐๐ รูปที่พระพุทธองค์ทรงสรรเสริญ" }
+        ];
+
+        // ✅ ใส่ลิงก์ตัวอย่างของ Youtube ให้ด้วย เพื่อให้คลิกแล้วโชว์ Dialog ได้เลย
+        const chapters = chapterData.map(ch => ({
+            ...ch,
+            image: DEFAULT_IMAGE_URL,
+            urls: {
+                book: `${BASE_URL}/${toSlug(ch.title)}`, // เปิด _blank
+                cartoon: `${BASE_URL}/cartoon-${toSlug(ch.title)}`, // สมมติให้มีลิงก์เปิด _blank
+                video: 'https://www.youtube.com/watch?v=jNQXAC9IVRw',   // เปิด Modal ในเว็บ
+                podcast: 'https://www.youtube.com/watch?v=jNQXAC9IVRw'  // เปิด Modal ในเว็บ
+            }
+        }));
+
+        let myFavorites = JSON.parse(localStorage.getItem('anuphudhhaFavorites')) || [];
+        let isFavMode = false;
+        let toastTimeout;
+        let currentChapterId = null;
+
+        const toThaiNum = (num) => {
+            const thaiNumbers = ['๐', '๑', '๒', '๓', '๔', '๕', '๖', '๗', '๘', '๙'];
+            return num.toString().split('').map(digit => thaiNumbers[digit]).join('');
+        };
+
+        const listContainer = document.getElementById('chapterList');
+        const noResults = document.getElementById('noResults');
+        const itemCount = document.getElementById('itemCount');
+        const sectionTitle = document.getElementById('sectionTitle');
+
+        window.showToast = function(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').textContent = message;
+            
+            toast.classList.remove('opacity-0', '-translate-y-4');
+            toast.classList.add('opacity-100', 'translate-y-0');
+            
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', '-translate-y-4');
+            }, 2500);
+        }
+
+        window.checkFavDot = function() {
+            const dot = document.getElementById('fav-dot');
+            if(myFavorites.length > 0) dot.classList.remove('hidden');
+            else dot.classList.add('hidden');
+        }
+
+        // 🟢 แสดงผล List แนวนอน และมี onclick เปิด Bottom Sheet
+        window.renderList = function(data, stagger = true) {
+            listContainer.innerHTML = '';
+            itemCount.textContent = `${data.length} องค์`;
+            
+            if (data.length === 0) {
+                noResults.classList.remove('hidden');
+                noResults.classList.add('flex');
+            } else {
+                noResults.classList.add('hidden');
+                noResults.classList.remove('flex');
+                
+                data.forEach((chapter, index) => {
+                    const delay = stagger ? `animation-delay: ${Math.min(index * 0.03, 0.5)}s` : '';
+                    const isFav = myFavorites.includes(chapter.id);
+                    const item = document.createElement('div');
+                    
+                    item.className = `fade-in flex items-stretch bg-white border border-stone-100 rounded-2xl transition-all shadow-sm`;
+                    if(stagger) item.style = delay;
+                    
+                    item.innerHTML = `
+                        <div class="clickable-area flex-grow flex items-center p-3 cursor-pointer" onclick="window.openSheet(${chapter.id})">
+                            <div class="w-[46px] h-[46px] rounded-full bg-stone-100 overflow-hidden shrink-0 border border-stone-100">
+                                <img src="${chapter.image}" alt="${chapter.title}" class="w-full h-full object-cover" loading="lazy">
+                            </div>
+                            
+                            <div class="ml-3.5 flex-grow overflow-hidden">
+                                <h3 class="font-heading font-semibold text-[15px] text-stone-800 truncate leading-tight">${chapter.title}</h3>
+                                <div class="flex items-center gap-1.5 mt-0.5">
+                                    <span class="text-[10px] font-bold text-monk-secondary bg-orange-50 px-1.5 py-0.5 rounded">องค์ที่ ${toThaiNum(chapter.id)}</span>
+                                    <p class="text-[11px] sm:text-xs text-stone-500 truncate flex-grow">${chapter.desc}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center pr-3 border-l border-stone-50 ml-1">
+                            <button onclick="window.toggleFavoriteInline(${chapter.id}, event)" class="w-10 h-10 rounded-full flex items-center justify-center transition-colors focus:outline-none ${isFav ? 'text-red-500 bg-red-50' : 'text-stone-300 hover:text-red-500 hover:bg-stone-50'}">
+                                <svg class="w-6 h-6" fill="${isFav ? 'currentColor' : 'none'}" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                            </button>
+                        </div>
+                    `;
+                    listContainer.appendChild(item);
+                });
+            }
+            window.checkFavDot();
+        }
+
+        window.renderList(chapters);
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            if(isFavMode) window.switchTab('home'); 
+            const term = e.target.value.toLowerCase().trim();
+            const filtered = chapters.filter(ch => 
+                ch.title.toLowerCase().includes(term) || 
+                ch.desc.toLowerCase().includes(term) ||
+                ch.id.toString().includes(term) ||
+                toThaiNum(ch.id).includes(term)
+            );
+            window.renderList(filtered, false); 
+        });
+
+        // 🟢 ตั้งค่าปุ่มใน Bottom Sheet (แยกทำงานต่างกัน)
+        window.setupSheetButton = function(btnId, url, isYoutube) {
+            const btn = document.getElementById(btnId);
+            const iconCircle = btn.querySelector('.icon-circle');
+
+            btn.onclick = () => {
+                if (!url) {
+                    window.showToast('กำลังจัดทำเนื้อหาส่วนนี้ครับ 🙏');
+                    return;
+                }
+                
+                // หากเป็นการ์ตูน หรือ หนังสือ ให้เปิดแท็บใหม่ (_blank)
+                // หากเป็น Video หรือ Podcast ให้เปิด Modal ภายในเว็บ
+                if (isYoutube) {
+                    window.openYoutube(url);
+                } else {
+                    window.open(url, '_blank');
+                }
+            };
+            
+            // ทำให้สีจางลงนิดหน่อยถ้ายังไม่มีข้อมูล แต่ยังคลิกเพื่อโชว์แจ้งเตือนได้
+            if (url) {
+                btn.style.opacity = '1';
+                if(iconCircle) iconCircle.classList.remove('grayscale');
+            } else {
+                btn.style.opacity = '0.5';
+                if(iconCircle) iconCircle.classList.add('grayscale');
+            }
+        }
+
+        // 🟢 เปิดหน้าต่าง Dialog (Bottom Sheet)
+        window.openSheet = function(id) {
+            const ch = chapters.find(c => c.id === id);
+            if (!ch) return;
+            currentChapterId = id;
+            
+            document.getElementById('sheetOrder').textContent = `องค์ที่ ${toThaiNum(ch.id)}`;
+            document.getElementById('sheetTitle').textContent = ch.title;
+            document.getElementById('sheetDesc').textContent = ch.desc;
+            
+            window.updateSheetFavoriteIcon();
+            
+            // ตั้งค่าปุ่ม: isYoutube=false (เปิด _blank), isYoutube=true (เปิด Modal)
+            window.setupSheetButton('btn-book', ch.urls.book, false);
+            window.setupSheetButton('btn-cartoon', ch.urls.cartoon, false);
+            window.setupSheetButton('btn-video', ch.urls.video, true);
+            window.setupSheetButton('btn-podcast', ch.urls.podcast, true);
+            
+            document.getElementById('backdrop').classList.add('open');
+            document.getElementById('bottomSheet').classList.add('open');
+        }
+
+        // 🟢 ปิดหน้าต่าง Dialog
+        window.closeSheet = function() {
+            document.getElementById('backdrop').classList.remove('open');
+            document.getElementById('bottomSheet').classList.remove('open');
+        }
+
+        window.updateSheetFavoriteIcon = function() {
+            const icon = document.getElementById('icon-favorite');
+            const btn = icon.parentElement;
+            
+            if (myFavorites.includes(currentChapterId)) {
+                icon.setAttribute('fill', 'currentColor');
+                icon.classList.add('text-red-500');
+                btn.classList.add('bg-red-50');
+                btn.classList.remove('text-stone-300', 'bg-stone-50');
+            } else {
+                icon.setAttribute('fill', 'none');
+                icon.classList.remove('text-red-500');
+                btn.classList.remove('bg-red-50');
+                btn.classList.add('text-stone-300', 'bg-stone-50');
+            }
+        }
+
+        window.toggleFavorite = function() {
+            if (!currentChapterId) return;
+            const idx = myFavorites.indexOf(currentChapterId);
+            if (idx === -1) {
+                myFavorites.push(currentChapterId);
+                window.showToast('บันทึกเข้ารายการโปรดแล้ว ⭐️');
+            } else {
+                myFavorites.splice(idx, 1);
+                window.showToast('นำออกจากรายการโปรดแล้ว');
+            }
+            
+            localStorage.setItem('anuphudhhaFavorites', JSON.stringify(myFavorites));
+            window.updateSheetFavoriteIcon();
+            window.checkFavDot();
+            
+            if (isFavMode) {
+                window.renderFavs();
+            } else {
+                const term = document.getElementById('searchInput').value.toLowerCase().trim();
+                if(term) {
+                    const filtered = chapters.filter(ch => ch.title.toLowerCase().includes(term) || ch.desc.toLowerCase().includes(term));
+                    window.renderList(filtered, false);
+                } else {
+                    window.renderList(chapters, false);
+                }
+            }
+        }
+
+        window.toggleFavoriteInline = function(id, event) {
+            if (event) event.stopPropagation(); 
+            
+            const idx = myFavorites.indexOf(id);
+            if (idx === -1) {
+                myFavorites.push(id);
+                window.showToast('บันทึกเข้ารายการโปรดแล้ว ⭐️');
+            } else {
+                myFavorites.splice(idx, 1);
+                window.showToast('นำออกจากรายการโปรดแล้ว');
+            }
+            
+            localStorage.setItem('anuphudhhaFavorites', JSON.stringify(myFavorites));
+            window.checkFavDot();
+            
+            if (isFavMode) {
+                window.renderFavs();
+            } else {
+                const btn = event.currentTarget;
+                const svg = btn.querySelector('svg');
+                
+                if (myFavorites.includes(id)) {
+                    btn.className = "w-10 h-10 rounded-full flex items-center justify-center transition-colors focus:outline-none text-red-500 bg-red-50";
+                    svg.setAttribute('fill', 'currentColor');
+                } else {
+                    btn.className = "w-10 h-10 rounded-full flex items-center justify-center transition-colors focus:outline-none text-stone-300 hover:text-red-500 hover:bg-stone-50";
+                    svg.setAttribute('fill', 'none');
+                }
+            }
+        }
+
+        window.switchTab = function(tab) {
+            window.closeSheet();
+            const btnFav = document.getElementById('btn-top-fav');
+            const navFav = document.getElementById('nav-fav');
+            const navHome = document.getElementById('nav-home');
+            const fabHome = document.getElementById('fab-home');
+            
+            if (tab === 'home') {
+                isFavMode = false;
+                sectionTitle.textContent = "รายนามทั้งหมด";
+                
+                btnFav.classList.remove('text-red-500', 'bg-red-50');
+                btnFav.classList.add('text-stone-400');
+                
+                navHome.classList.replace('text-stone-400', 'text-monk-primary');
+                navFav.classList.replace('text-monk-primary', 'text-stone-400');
+                navFav.classList.remove('text-red-500');
+                
+                fabHome.classList.add('hidden'); 
+                
+                const term = document.getElementById('searchInput').value.toLowerCase().trim();
+                if(term) {
+                    const filtered = chapters.filter(ch => ch.title.toLowerCase().includes(term) || ch.desc.toLowerCase().includes(term));
+                    window.renderList(filtered, false);
+                } else {
+                    window.renderList(chapters, false);
+                }
+                window.scrollTo({top: 0, behavior: 'smooth'});
+            } else {
+                if(isFavMode) return; 
+                isFavMode = true;
+                sectionTitle.textContent = "บันทึกไว้ (รายการโปรด)";
+                
+                btnFav.classList.add('text-red-500', 'bg-red-50');
+                btnFav.classList.remove('text-stone-400');
+                
+                navFav.classList.replace('text-stone-400', 'text-monk-primary');
+                navHome.classList.replace('text-monk-primary', 'text-stone-400');
+                
+                fabHome.classList.remove('hidden'); 
+                
+                window.renderFavs();
+                window.scrollTo({top: 0, behavior: 'smooth'});
+            }
+        }
+
+        window.renderFavs = function() {
+            const favCh = myFavorites.map(id => chapters.find(c => c.id === id)).filter(Boolean);
+            
+            if (favCh.length === 0) {
+                listContainer.innerHTML = '';
+                itemCount.textContent = `0 องค์`;
+                document.getElementById('noResultsText').textContent = "ยังไม่ได้บันทึกเรื่องราวไว้เลยครับ";
+                noResults.classList.remove('hidden');
+                noResults.classList.add('flex');
+            } else {
+                window.renderList(favCh, false);
+            }
+        }
+
+        // 🟢 ระบบเปิด YouTube ภายในเว็บ
+        window.openYoutube = function(url) {
+            let videoId = '';
+            if (url.includes('youtu.be/')) videoId = url.split('youtu.be/')[1].split('?')[0];
+            else if (url.includes('youtube.com/watch')) {
+                try { videoId = new URL(url).searchParams.get('v'); } catch(e) {}
+            }
+            
+            if (!videoId) {
+                window.open(url, '_blank');
+                return;
+            }
+            
+            window.closeSheet();
+            
+            const iframe = document.getElementById('youtubeIframe');
+            iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+            
+            const ytBackdrop = document.getElementById('ytBackdrop');
+            const ytModal = document.getElementById('ytModal');
+            
+            ytBackdrop.style.display = 'block';
+            ytModal.classList.add('opacity-100');
+            ytModal.classList.remove('pointer-events-none');
+        }
+
+        window.closeYoutube = function() {
+            const ytBackdrop = document.getElementById('ytBackdrop');
+            const ytModal = document.getElementById('ytModal');
+            const iframe = document.getElementById('youtubeIframe');
+            
+            ytModal.classList.remove('opacity-100');
+            ytModal.classList.add('pointer-events-none');
+            
+            setTimeout(() => {
+                ytBackdrop.style.display = 'none';
+                iframe.src = ''; 
+            }, 300);
+        }
+        document.getElementById('ytBackdrop').style.display = 'none';
+
+    </script>
+</body>
+</html>
