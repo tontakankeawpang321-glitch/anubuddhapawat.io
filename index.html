@@ -261,15 +261,14 @@
         const BASE_URL = "https://sites.google.com/view/anuphudhha";
         const DEFAULT_IMAGE_URL = 'https://images.unsplash.com/photo-1540455855018-c2b99fa2e41a?auto=format&fit=crop&q=80&w=200';
 
+        // ✅ ฟังก์ชัน toSlug แก้ไขใหม่! ไม่ลบสระและวรรณยุกต์ไทยออก เพื่อให้ตรงกับ URL บน Google Sites เป๊ะๆ
         function toSlug(s){
-            const THAI_DIACRITICS = /[ัิ-ฺ็-๎]/g; 
             return s.trim()
-                .replace(/[\*]/g,"")            
-                .replace(THAI_DIACRITICS,"")     
-                .replace(/\s+/g,"-")             
-                .replace(/[^\wก-๙-]+/g,"-")    
-                .replace(/-+/g,"-")              
-                .replace(/^-|-$/g,"")            
+                .replace(/[\*]/g,"")             // ตัดเครื่องหมาย * ทิ้ง
+                .replace(/\s+/g,"-")             // เปลี่ยนช่องว่างเป็นขีด (-)
+                .replace(/[^\wก-๙-]+/g,"-")      // เก็บอักขระไทย อังกฤษ ตัวเลข และขีดไว้ นอกนั้นเปลี่ยนเป็นขีด
+                .replace(/-+/g,"-")              // ยุบขีดที่ซ้ำกัน
+                .replace(/^-|-$/g,"")            // ตัดขีดหน้า/หลังทิ้ง
                 .toLowerCase();
         }
 
@@ -361,10 +360,10 @@
             ...ch,
             image: DEFAULT_IMAGE_URL,
             urls: {
-                book: `${BASE_URL}/${toSlug(ch.title)}`, // มี URL = แสดงสี, เปิด _blank
-                cartoon: '', // ไม่มี URL = แสดง Grayscale, ขึ้นแจ้งเตือน
-                video: 'https://www.youtube.com/watch?v=jNQXAC9IVRw', // มี URL = แสดงสี, เปิดวิดีโอในเว็บ
-                podcast: 'https://www.youtube.com/watch?v=jNQXAC9IVRw' // มี URL = แสดงสี, เปิดพอดแคสต์ในเว็บ
+                book: `${BASE_URL}/${toSlug(ch.title)}`, // เปิด _blank ตาม Slug ใหม่ที่แก้ไขแล้ว
+                cartoon: '', // ตัวอย่าง: ไม่มีลิงก์ จะแสดงปุ่มเป็นสีเทาและแจ้งเตือนเมื่อคลิก
+                video: 'https://www.youtube.com/watch?v=jNQXAC9IVRw', // ตัวอย่าง: มีลิงก์ จะเปิด Modal ภายในเว็บ
+                podcast: 'https://www.youtube.com/watch?v=jNQXAC9IVRw' // ตัวอย่าง: มีลิงก์ จะเปิด Modal ภายในเว็บ
             }
         }));
 
@@ -420,11 +419,11 @@
                     const isFav = myFavorites.includes(chapter.id);
                     const item = document.createElement('div');
                     
-                    // โครงสร้างการ์ดแนวตั้ง สำหรับแสดงผลแบบ 2 คอลัมน์
                     item.className = `fade-in bg-white border border-stone-100 rounded-xl overflow-hidden shadow-sm transition-transform active:scale-95 flex flex-col relative`;
                     if(stagger) item.style = delay;
                     
                     item.innerHTML = `
+                        <!-- 🟢 ครอบคลุมทั้งรูปภาพและข้อความให้คลิกแล้วเกิด openSheet -->
                         <div class="clickable-area flex flex-col h-full cursor-pointer" onclick="window.openSheet(${chapter.id})">
                             <div class="relative w-full aspect-square bg-stone-100">
                                 <img src="${chapter.image}" alt="${chapter.title}" class="w-full h-full object-cover" loading="lazy">
@@ -464,9 +463,10 @@
             window.renderList(filtered, false); 
         });
 
-        // 🟢 ตั้งค่าปุ่มใน Bottom Sheet (ไม่มี URL = ไร้สี และแจ้งเตือน)
+        // 🟢 ตั้งค่าปุ่มใน Bottom Sheet 
         window.setupSheetButton = function(btnId, url, isYoutube) {
             const btn = document.getElementById(btnId);
+            const iconCircle = btn.querySelector('.icon-circle');
 
             btn.onclick = () => {
                 if (!url) {
@@ -487,9 +487,11 @@
             if (url) {
                 btn.classList.remove('grayscale', 'opacity-50');
                 btn.classList.add('opacity-100');
+                if(iconCircle) iconCircle.classList.remove('grayscale');
             } else {
                 btn.classList.remove('opacity-100');
                 btn.classList.add('grayscale', 'opacity-50');
+                if(iconCircle) iconCircle.classList.add('grayscale');
             }
         }
 
