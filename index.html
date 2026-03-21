@@ -207,7 +207,7 @@
             <div class="px-6 pb-10 overflow-y-auto">
                 <div class="flex flex-col gap-3">
                     
-                    <button id="btn-book" class="sheet-btn group" data-url="" data-type="link">
+                    <a id="btn-book" href="#" target="_blank" rel="noopener noreferrer" class="sheet-btn group" data-url=""  style="text-decoration:none">
                         <div class="w-12 h-12 rounded-full bg-white shadow-sm text-orange-500 flex items-center justify-center mr-4 shrink-0 transition-transform group-hover:scale-105">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                         </div>
@@ -216,9 +216,9 @@
                             <div class="text-[11px] text-stone-400 mt-0.5">บทความบนเว็บไซต์ (เปิดแท็บใหม่)</div>
                         </div>
                         <svg class="w-5 h-5 text-stone-300 group-hover:text-amber-400 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                    </button>
+                    </a>
 
-                    <button id="btn-cartoon" class="sheet-btn group" data-url="" data-type="link">
+                    <a id="btn-cartoon" href="#" target="_blank" rel="noopener noreferrer" class="sheet-btn group" data-url="" style="text-decoration:none">
                         <div class="w-12 h-12 rounded-full bg-white shadow-sm text-yellow-500 flex items-center justify-center mr-4 shrink-0 transition-transform group-hover:scale-105">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                         </div>
@@ -227,7 +227,7 @@
                             <div class="text-[11px] text-stone-400 mt-0.5">เข้าใจง่ายสำหรับทุกวัย (เปิดแท็บใหม่)</div>
                         </div>
                         <svg class="w-5 h-5 text-stone-300 group-hover:text-amber-400 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                    </button>
+                    </a>
                     
                     <button id="btn-video" class="sheet-btn group" data-url="" data-type="youtube">
                         <div class="w-12 h-12 rounded-full bg-white shadow-sm text-rose-500 flex items-center justify-center mr-4 shrink-0 transition-transform group-hover:scale-105">
@@ -403,28 +403,22 @@
         const itemCount = document.getElementById('itemCount');
         const sectionTitle = document.getElementById('sectionTitle');
 
-        // ✅ ลงทะเบียน handler ครั้งเดียวตอน load — อ่าน data-url ตอน click
-        ['btn-book', 'btn-cartoon', 'btn-video', 'btn-podcast'].forEach(id => {
+        // ✅ btn-book / btn-cartoon: ใช้ href โดยตรง — browser เปิดเอง ไม่โดนบล็อก
+        ['btn-book', 'btn-cartoon'].forEach(id => {
+            document.getElementById(id).addEventListener('click', function(e) {
+                if (!this.dataset.url) {
+                    e.preventDefault();
+                    window.showToast('กำลังจัดทำเนื้อหาส่วนนี้ครับ 🙏');
+                }
+            });
+        });
+
+        // ✅ btn-video / btn-podcast: เปิด YouTube modal
+        ['btn-video', 'btn-podcast'].forEach(id => {
             document.getElementById(id).addEventListener('click', function() {
                 const url = this.dataset.url;
-                const type = this.dataset.type;
-                if (!url) {
-                    window.showToast('กำลังจัดทำเนื้อหาส่วนนี้ครับ 🙏');
-                    return;
-                }
-                if (type === 'youtube') {
-                    window.openYoutube(url);
-                } else {
-                    // ✅ ใช้ <a>.click() แทน window.open เพื่อไม่ให้ browser บล็อก popup
-                    const safeUrl = url.replace(/[^\x00-\x7F]/g, c => encodeURIComponent(c));
-                    const a = document.createElement('a');
-                    a.href = safeUrl;
-                    a.target = '_blank';
-                    a.rel = 'noopener noreferrer';
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                }
+                if (!url) { window.showToast('กำลังจัดทำเนื้อหาส่วนนี้ครับ 🙏'); return; }
+                window.openYoutube(url);
             });
         });
 
@@ -500,11 +494,26 @@
             window.renderList(filtered, false);
         });
 
-        // ✅ แค่ set data-url ใหม่ — ไม่ต้อง clone หรือ add/remove listener
+        // ✅ set href โดยตรงสำหรับ link buttons, data-url สำหรับ youtube buttons
         window.setupSheetButton = function(btnId, url, isYoutube) {
             const btn = document.getElementById(btnId);
-            btn.dataset.url = url || '';
-            btn.dataset.type = isYoutube ? 'youtube' : 'link';
+            const safeUrl = url ? url.replace(/[^\x00-\x7F]/g, c => encodeURIComponent(c)) : '';
+            
+            if (isYoutube) {
+                btn.dataset.url = safeUrl;
+            } else {
+                // ✅ set href ตรงบน element — browser จะเปิดแท็บใหม่ได้เลยโดยไม่โดนบล็อก
+                btn.dataset.url = safeUrl;
+                if (safeUrl) {
+                    btn.href = safeUrl;
+                    btn.setAttribute('target', '_blank');
+                    btn.setAttribute('rel', 'noopener noreferrer');
+                } else {
+                    btn.removeAttribute('href');
+                    btn.removeAttribute('target');
+                }
+            }
+
             if (url) {
                 btn.classList.remove('disabled');
             } else {
