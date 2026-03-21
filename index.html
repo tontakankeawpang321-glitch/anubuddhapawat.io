@@ -306,7 +306,7 @@
         });
 
         const chapters = [
-            { id: 1, title: "พระอัญญาโกณฑัญญะ", desc: "ผู้รู้ราตรีนาน ภิกษุรูปแรกในพระพุทธศาสนา", image: DEFAULT_IMAGE_URL, urls: { book: "https://sites.google.com/view/anuphudhha/พระอญญาโกณฑญญะ-๑", cartoon: "", video: "https://www.youtube.com/watch?v=jNQXAC9IVRw", podcast: "https://www.youtube.com/watch?v=jNQXAC9IVRw" } },
+            { id: 1, title: "พระอัญญาโกณฑัญญะ", desc: "ผู้รู้ราตรีนาน ภิกษุรูปแรกในพระพุทธศาสนา", image: DEFAULT_IMAGE_URL, urls: { book: "https://sites.google.com/view/anuphudhha/พระอัญญาโกณฑัญญะ-๑", cartoon: "", video: "https://www.youtube.com/watch?v=jNQXAC9IVRw", podcast: "https://www.youtube.com/watch?v=jNQXAC9IVRw" } },
             { id: 2, title: "พระวัปปะ", desc: "หนึ่งในปัญจวัคคีย์ ผู้บรรลุธรรมเป็นรูปที่สอง", image: DEFAULT_IMAGE_URL, urls: { book: "https://sites.google.com/view/anuphudhha/พระวัปปะ", cartoon: "", video: "https://www.youtube.com/watch?v=jNQXAC9IVRw", podcast: "https://www.youtube.com/watch?v=jNQXAC9IVRw" } },
             { id: 3, title: "พระภัททิยะ", desc: "หนึ่งในปัญจวัคคีย์ พระมหาสาวกผู้สละราชสมบัติ", image: DEFAULT_IMAGE_URL, urls: { book: "https://sites.google.com/view/anuphudhha/พระภัททิยะ", cartoon: "", video: "https://www.youtube.com/watch?v=jNQXAC9IVRw", podcast: "https://www.youtube.com/watch?v=jNQXAC9IVRw" } },
             { id: 4, title: "พระมหานามะ", desc: "หนึ่งในปัญจวัคคีย์ ผู้มีบทบาทในยุคต้น", image: DEFAULT_IMAGE_URL, urls: { book: "https://sites.google.com/view/anuphudhha/พระมหานามะ", cartoon: "", video: "https://www.youtube.com/watch?v=jNQXAC9IVRw", podcast: "https://www.youtube.com/watch?v=jNQXAC9IVRw" } },
@@ -415,9 +415,15 @@
                 if (type === 'youtube') {
                     window.openYoutube(url);
                 } else {
-                    // encode เฉพาะ non-ASCII เพื่อรองรับ URL ภาษาไทย
+                    // ✅ ใช้ <a>.click() แทน window.open เพื่อไม่ให้ browser บล็อก popup
                     const safeUrl = url.replace(/[^\x00-\x7F]/g, c => encodeURIComponent(c));
-                    window.open(safeUrl, '_blank', 'noopener,noreferrer');
+                    const a = document.createElement('a');
+                    a.href = safeUrl;
+                    a.target = '_blank';
+                    a.rel = 'noopener noreferrer';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
                 }
             });
         });
