@@ -173,7 +173,7 @@
             <div class="px-4 pb-8 pt-3 overflow-y-auto">
                 <div class="flex flex-col gap-2">
                     
-                    <button id="btn-book" class="flex items-center p-3.5 rounded-2xl bg-white border border-stone-100 shadow-sm-soft text-stone-700 active:bg-stone-50 transition-colors cursor-pointer opacity-100">
+                    <a id="btn-book" class="flex items-center p-3.5 rounded-2xl bg-white border border-stone-100 shadow-sm-soft text-stone-700 active:bg-stone-50 transition-colors cursor-pointer opacity-100">
                         <div class="icon-circle w-10 h-10 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center mr-4 shrink-0 transition-all">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                         </div>
@@ -182,9 +182,9 @@
                             <div class="text-[11px] text-stone-400">บทความบนเว็บไซต์ (เปิดแท็บใหม่)</div>
                         </div>
                         <svg class="w-4 h-4 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                    </button>
+                    </a>
 
-                    <button id="btn-cartoon" class="flex items-center p-3.5 rounded-2xl bg-white border border-stone-100 shadow-sm-soft text-stone-700 active:bg-stone-50 transition-colors cursor-pointer opacity-100">
+                    <a id="btn-cartoon" class="flex items-center p-3.5 rounded-2xl bg-white border border-stone-100 shadow-sm-soft text-stone-700 active:bg-stone-50 transition-colors cursor-pointer opacity-100">
                         <div class="icon-circle w-10 h-10 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mr-4 shrink-0 transition-all">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                         </div>
@@ -193,7 +193,7 @@
                             <div class="text-[11px] text-stone-400">เข้าใจง่ายสำหรับเด็ก (เปิดแท็บใหม่)</div>
                         </div>
                         <svg class="w-4 h-4 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                    </button>
+                    </a>
                     
                     <button id="btn-video" class="flex items-center p-3.5 rounded-2xl bg-white border border-stone-100 shadow-sm-soft text-stone-700 active:bg-stone-50 transition-colors cursor-pointer opacity-100">
                         <div class="icon-circle w-10 h-10 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mr-4 shrink-0 transition-all">
@@ -263,7 +263,7 @@
         // ✅ ข้อมูลทั้ง 80 องค์ กำหนด URL ของหนังสือตรงเป๊ะๆ ตามรายการที่คุณระบุ
         // สามารถเปลี่ยน cartoon, video, podcast, image ได้โดยการใส่ลิงก์ระหว่าง ""
         const chapters = [
-            { id: 1, title: "พระอัญญาโกณฑัญญะ", desc: "ผู้รู้ราตรีนาน ภิกษุรูปแรกในพระพุทธศาสนา", image: DEFAULT_IMAGE_URL, urls: { book: `${BASE_URL}/พระอญญาโกณฑญญะ-๑`, cartoon: "", video: "https://www.youtube.com/watch?v=jNQXAC9IVRw", podcast: "https://www.youtube.com/watch?v=jNQXAC9IVRw" } },
+            { id: 1, title: "พระอัญญาโกณฑัญญะ", desc: "ผู้รู้ราตรีนาน ภิกษุรูปแรกในพระพุทธศาสนา", image: DEFAULT_IMAGE_URL, urls: { book: `${BASE_URL}/พระอัญญาโกณฑญญะ-๑`, cartoon: "", video: "https://www.youtube.com/watch?v=jNQXAC9IVRw", podcast: "https://www.youtube.com/watch?v=jNQXAC9IVRw" } },
             { id: 2, title: "พระวัปปะ", desc: "หนึ่งในปัญจวัคคีย์ ผู้บรรลุธรรมเป็นรูปที่สอง", image: DEFAULT_IMAGE_URL, urls: { book: `${BASE_URL}/พระวัปปะ`, cartoon: "", video: "https://www.youtube.com/watch?v=jNQXAC9IVRw", podcast: "https://www.youtube.com/watch?v=jNQXAC9IVRw" } },
             { id: 3, title: "พระภัททิยะ", desc: "หนึ่งในปัญจวัคคีย์ พระมหาสาวกผู้สละราชสมบัติ", image: DEFAULT_IMAGE_URL, urls: { book: `${BASE_URL}/พระภัททิยะ`, cartoon: "", video: "https://www.youtube.com/watch?v=jNQXAC9IVRw", podcast: "https://www.youtube.com/watch?v=jNQXAC9IVRw" } },
             { id: 4, title: "พระมหานามะ", desc: "หนึ่งในปัญจวัคคีย์ ผู้มีบทบาทในยุคต้น", image: DEFAULT_IMAGE_URL, urls: { book: `${BASE_URL}/พระมหานามะ`, cartoon: "", video: "https://www.youtube.com/watch?v=jNQXAC9IVRw", podcast: "https://www.youtube.com/watch?v=jNQXAC9IVRw" } },
@@ -444,18 +444,38 @@
             const btn = document.getElementById(btnId);
             const iconCircle = btn.querySelector('.icon-circle');
 
-            btn.onclick = () => {
-                if (!url) {
+            // ล้างค่าเก่าออกก่อน
+            btn.onclick = null;
+            if (btn.tagName === 'A') {
+                btn.removeAttribute('href');
+                btn.removeAttribute('target');
+                btn.removeAttribute('rel');
+            }
+
+            if (!url) {
+                // กรณีไม่มี URL ให้กดแล้วโชว์ข้อความ
+                btn.onclick = (e) => {
+                    e.preventDefault();
                     window.showToast('กำลังจัดทำเนื้อหาส่วนนี้ครับ 🙏');
-                    return;
-                }
-                
+                };
+            } else {
                 if (isYoutube) {
-                    window.openYoutube(url);
+                    // กรณีเปิด Youtube ภายในเว็บ
+                    btn.onclick = (e) => {
+                        e.preventDefault();
+                        window.openYoutube(url);
+                    };
                 } else {
-                    window.open(url, '_blank');
+                    // กรณีเป็นปุ่มที่ใช้แท็ก <a> (หนังสือ/การ์ตูน) ให้ใส่ลิงก์ไปตรงๆ เบราว์เซอร์จะไม่บล็อก
+                    if (btn.tagName === 'A') {
+                        btn.href = url;
+                        btn.target = "_blank";
+                        btn.rel = "noopener noreferrer";
+                    } else {
+                        btn.onclick = () => window.open(url, '_blank');
+                    }
                 }
-            };
+            }
             
             if (url) {
                 btn.classList.remove('grayscale', 'opacity-50');
