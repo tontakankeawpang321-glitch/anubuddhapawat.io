@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="th"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ebook Maker Pro (Auto-Crop &amp; Fix Export)</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@300;400&amp;family=Chakra+Petch:wght@300;400&amp;family=Itim&amp;family=Kanit:wght@300;400&amp;family=Krub:wght@300;400&amp;family=Mali:wght@300;400&amp;family=Niramit:wght@300;400&amp;family=Pattaya&amp;family=Pridi:wght@300;400&amp;family=Prompt:wght@300;400&amp;family=Sarabun:wght@300;400&amp;family=Sriracha&amp;family=Taviraj:wght@300;400&amp;family=Trirong:wght@300;400&amp;family=Kodchasan:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<!-- JSZip for Exporting -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<!-- PDF.js for PDF Rendering -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+<!-- Tailwind (Disable Preflight) -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    corePlugins: {
+      preflight: false,
+    }
+  }
+</script>
+
+<style>
+/* === Global Ebook Styles === */
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+  font-family:"Sarabun",sans-serif;
+  background:#0f0f0f;
+  color:#eee;
+  overflow:hidden;
+  transition:0.3s;
+}
+
+/* === THEMES === */
+body.dark{ background:#0f0f0f; color:#eee; }
+body.light{ background:#ffffff; color:#111; }
+body.paper{ background:#f4ecd8; color:#3a2f1b; background-image: radial-gradient(rgba(0,0,0,0.03) 1px, transparent 1px); background-size:4px 4px; }
+body.blue{ background:#101820; color:#c0d6e4; }
+body.matrix{ background:#000000; color:#00ff41; text-shadow: 0 0 2px #003300; }
+
+/* Top Bar Styling */
+.topbar{
+  position:fixed;
+  top:0;
+  width:100%;
+  background:#1a1a1a;
+  padding:10px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  z-index:100;
+  gap:10px;
+  flex-wrap:wrap;
+  border-bottom: 1px solid #333;
+}
+body.light .topbar{background:#f0f0f0; border-color:#ddd;}
+body.paper .topbar{background:#e8dcc3; border-color:#d1c4a9;}
+
+button, select{
+  padding:6px 12px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:14px;
+}
+.file-btn{background:#4CAF50;color:#fff}
+.control-btn{background:#333;color:#fff; border: 1px solid #555;}
+.download-btn{background:#2196F3;color:#fff}
+.add-page-btn{background:#FF9800;color:#fff}
+body.light .control-btn{background:#ddd;color:#111; border-color:#ccc;}
+
+/* Slider (Horizontal by default) */
+.slider{
+  display:flex;
+  height:100vh;
+  width:100vw;
+  overflow-x:auto;
+  scroll-snap-type:x mandatory;
+  scroll-behavior:smooth;
+}
+
+.slide{
+  min-width:100vw;
+  height:100vh;
+  padding:0;
+  display: flex;
+  flex-direction: column;
+  overflow: auto; 
+  scroll-snap-align:start;
+  position: relative;
+}
+
+/* === VERTICAL MODE STYLES === */
+body.vertical-read .slider {
+    display: block;
+    flex-direction: column;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scroll-snap-type: none;
+    padding-top: 50px;
+}
+
+body.vertical-read .slide {
+    min-width: 100%;
+    width: 100%;
+    height: auto;
+    min-height: auto;
+    overflow: visible;
+    border-bottom: 2px dashed rgba(100,100,100,0.3);
+    padding-bottom: 20px;
+}
+
+body.vertical-read .nav {
+    display: none !important;
+}
+
+/* Standard Slide Content */
+.slide-content {
+    width: 100%;
+    margin: auto; 
+    padding: 60px 0 100px 0; 
+    position: relative; 
+    flex-shrink: 0; 
+    text-align: center; 
+}
+
+/* Delete Page Button Style */
+.delete-page-btn {
+    position: absolute;
+    top: 65px; 
+    right: 20px;
+    background: #ff4444;
+    color: white;
+    border: 1px solid white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    z-index: 60;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    opacity: 0.8;
+    transition: 0.2s;
+}
+.delete-page-btn:hover {
+    opacity: 1;
+    background: #cc0000;
+    transform: scale(1.05);
+}
+
+/* Image Tools */
+.img-wrapper { position: relative; width: 100%; margin: 0; padding: 0; display: block; min-height: 200px; background: rgba(100,100,100,0.1); }
+.slide img { 
+    display: block; 
+    width: 100%; 
+    height: auto; 
+    margin: 0 auto; 
+    object-fit: contain; 
+    transition: opacity 0.3s;
+}
+.img-tools { position: absolute; top: 10px; right: 10px; display: flex; gap: 5px; z-index: 50; flex-wrap: wrap; justify-content: flex-end;}
+.tool-btn { background: rgba(0,0,0,0.7); color: white; border: 1px solid rgba(255,255,255,0.5); padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold;}
+.tool-btn:hover { background: #333; }
+.delete-btn:hover { background: red; }
+.crop-btn:hover { background: #2196F3; }
+
+/* Navigation & Controls */
+.nav{ position:fixed; bottom:20px; right:20px; opacity: 0.8; z-index: 100; }
+.nav button{ font-size:18px; margin-left:5px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+.page-control{ position:fixed; bottom:20px; left:20px; background:#1a1a1a; padding:10px; border-radius:12px; opacity: 0.9; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.3); display: flex; flex-direction: column; align-items: center; }
+body.light .page-control{background:#eee}
+.page-control input[type=range]{ width:150px; margin-top: 5px; }
+
+/* TOC */
+.toc{ position:fixed; top:52px; left:0; width:260px; height:calc(100% - 52px); background:#1b1b1b; overflow-y:auto; transform:translateX(-100%); transition:transform 0.3s ease-in-out; padding:15px; z-index:150; box-shadow: 2px 0 5px rgba(0,0,0,0.5); }
+body.light .toc{background:#f5f5f5}
+.toc.show{ transform:translateX(0); }
+.toc-item-wrapper { display: flex; align-items: center; margin-bottom: 5px; padding: 2px; border-radius: 6px; }
+.toc-item-wrapper:hover { background: rgba(255,255,255,0.1); }
+body.light .toc-item-wrapper:hover { background: rgba(0,0,0,0.05); }
+.toc-item-wrapper.active { background: #4CAF50; color: white; }
+.toc-text { 
+    flex-grow: 1; padding: 6px 10px; cursor: pointer; 
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
+    border: 1px solid transparent; 
+    display: block; text-decoration: none; color: inherit; 
+}
+.toc-text[contenteditable="true"]:focus { background: rgba(0,0,0,0.5); border: 1px solid #777; outline: none; color: white; white-space: normal; }
+body.light .toc-text[contenteditable="true"]:focus { background: white; color: black; }
+
+/* TOC Delete Button */
+.toc-del-btn { margin-left: 5px; cursor: pointer; font-size: 14px; padding: 2px 6px; color: #ff6666; opacity: 0.8; transition: 0.2s; flex-shrink: 0; }
+.toc-del-btn:hover { opacity: 1; color: #ff0000; transform: scale(1.2); }
+
+/* Modal for Cropping */
+.crop-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+.crop-container { position: relative; max-width: 90%; max-height: 80%; overflow: hidden; border: 2px solid #555; background: #000; }
+.crop-controls { margin-top: 20px; display: flex; gap: 10px; }
+canvas#cropCanvas { display: block; cursor: crosshair; }
+
+/* Loading Indicator */
+#loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:3000; display:none; flex-direction:column; align-items:center; justify-content:center; color:white; }
+.loader { border: 5px solid #f3f3f3; border-top: 5px solid #2196F3; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; margin-bottom: 20px; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+.edit-only { display: block; }
+</style>
+<style>*, ::before, ::after {
+    --tw-border-spacing-x: 0;
+    --tw-border-spacing-y: 0;
+    --tw-translate-x: 0;
+    --tw-translate-y: 0;
+    --tw-rotate: 0;
+    --tw-skew-x: 0;
+    --tw-skew-y: 0;
+    --tw-scale-x: 1;
+    --tw-scale-y: 1;
+    --tw-pan-x:  ;
+    --tw-pan-y:  ;
+    --tw-pinch-zoom:  ;
+    --tw-scroll-snap-strictness: proximity;
+    --tw-gradient-from-position:  ;
+    --tw-gradient-via-position:  ;
+    --tw-gradient-to-position:  ;
+    --tw-ordinal:  ;
+    --tw-slashed-zero:  ;
+    --tw-numeric-figure:  ;
+    --tw-numeric-spacing:  ;
+    --tw-numeric-fraction:  ;
+    --tw-ring-inset:  ;
+    --tw-ring-offset-width: 0px;
+    --tw-ring-offset-color: #fff;
+    --tw-ring-color: rgb(59 130 246 / 0.5);
+    --tw-ring-offset-shadow: 0 0 #0000;
+    --tw-ring-shadow: 0 0 #0000;
+    --tw-shadow: 0 0 #0000;
+    --tw-shadow-colored: 0 0 #0000;
+    --tw-blur:  ;
+    --tw-brightness:  ;
+    --tw-contrast:  ;
+    --tw-grayscale:  ;
+    --tw-hue-rotate:  ;
+    --tw-invert:  ;
+    --tw-saturate:  ;
+    --tw-sepia:  ;
+    --tw-drop-shadow:  ;
+    --tw-backdrop-blur:  ;
+    --tw-backdrop-brightness:  ;
+    --tw-backdrop-contrast:  ;
+    --tw-backdrop-grayscale:  ;
+    --tw-backdrop-hue-rotate:  ;
+    --tw-backdrop-invert:  ;
+    --tw-backdrop-opacity:  ;
+    --tw-backdrop-saturate:  ;
+    --tw-backdrop-sepia:  ;
+    --tw-contain-size:  ;
+    --tw-contain-layout:  ;
+    --tw-contain-paint:  ;
+    --tw-contain-style:  
+}
+::backdrop {
+    --tw-border-spacing-x: 0;
+    --tw-border-spacing-y: 0;
+    --tw-translate-x: 0;
+    --tw-translate-y: 0;
+    --tw-rotate: 0;
+    --tw-skew-x: 0;
+    --tw-skew-y: 0;
+    --tw-scale-x: 1;
+    --tw-scale-y: 1;
+    --tw-pan-x:  ;
+    --tw-pan-y:  ;
+    --tw-pinch-zoom:  ;
+    --tw-scroll-snap-strictness: proximity;
+    --tw-gradient-from-position:  ;
+    --tw-gradient-via-position:  ;
+    --tw-gradient-to-position:  ;
+    --tw-ordinal:  ;
+    --tw-slashed-zero:  ;
+    --tw-numeric-figure:  ;
+    --tw-numeric-spacing:  ;
+    --tw-numeric-fraction:  ;
+    --tw-ring-inset:  ;
+    --tw-ring-offset-width: 0px;
+    --tw-ring-offset-color: #fff;
+    --tw-ring-color: rgb(59 130 246 / 0.5);
+    --tw-ring-offset-shadow: 0 0 #0000;
+    --tw-ring-shadow: 0 0 #0000;
+    --tw-shadow: 0 0 #0000;
+    --tw-shadow-colored: 0 0 #0000;
+    --tw-blur:  ;
+    --tw-brightness:  ;
+    --tw-contrast:  ;
+    --tw-grayscale:  ;
+    --tw-hue-rotate:  ;
+    --tw-invert:  ;
+    --tw-saturate:  ;
+    --tw-sepia:  ;
+    --tw-drop-shadow:  ;
+    --tw-backdrop-blur:  ;
+    --tw-backdrop-brightness:  ;
+    --tw-backdrop-contrast:  ;
+    --tw-backdrop-grayscale:  ;
+    --tw-backdrop-hue-rotate:  ;
+    --tw-backdrop-invert:  ;
+    --tw-backdrop-opacity:  ;
+    --tw-backdrop-saturate:  ;
+    --tw-backdrop-sepia:  ;
+    --tw-contain-size:  ;
+    --tw-contain-layout:  ;
+    --tw-contain-paint:  ;
+    --tw-contain-style:  
+}</style></head>
+
+<body class="dark">
+
+<!-- Hidden Inputs -->
+<!-- เพิ่ม multiple ให้สามารถเลือกลงแต่ละหน้าได้หลายภาพรวดเดียว -->
+
+
+<!-- Loading Overlay -->
+
+
+<!-- Crop Modal -->
+
+
+<div class="topbar">
+  
+
+  <div style="display:flex; gap:5px; align-items:center;">
+    <button class="control-btn" onclick="toggleLayout()" id="layoutBtn">📜 แนวตั้ง</button>
+    <button class="control-btn" onclick="toggleTOC()">สารบัญ</button>
+    <button class="control-btn" onclick="fontSize(1)">A+</button>
+    <button class="control-btn" onclick="fontSize(-1)">A-</button>
+    
+    <select id="pageSelect" onchange="window.location.hash = '#slide-' + this.value" class="control-btn" style="max-width: 70px;"><option value="0">1</option><option value="1">2</option><option value="2">3</option><option value="3">4</option><option value="4">5</option><option value="5">6</option><option value="6">7</option><option value="7">8</option><option value="8">9</option><option value="9">10</option><option value="10">11</option><option value="11">12</option><option value="12">13</option><option value="13">14</option><option value="14">15</option><option value="15">16</option></select>
+  </div>
+</div>
+
+<div class="toc" id="toc"></div>
+
+<div class="slider" id="slider"><div class="slide" id="slide-0" data-name="หน้า 1">
+        <div class="slide-content">
+            
+            <div class="img-container" id="img-cont-0"><div class="img-wrapper"><img class="editable-img" style="opacity: 1;" src="images/img_0.jpg" loading="lazy"></div></div>
+            
+        </div>
+    </div><div class="slide" id="slide-1" data-name="หน้า 2">
+        <div class="slide-content">
+            
+            <div class="img-container" id="img-cont-1"><div class="img-wrapper"><img class="editable-img" style="opacity: 1;" src="images/img_1.jpg" loading="lazy"></div></div>
+            
+        </div>
+    </div><div class="slide" id="slide-2" data-name="หน้า 3">
+        <div class="slide-content">
+            
+            <div class="img-container" id="img-cont-2"><div class="img-wrapper"><img class="editable-img" style="opacity: 1;" src="images/img_2.jpg" loading="lazy"></div></div>
+            
+        </div>
+    </div><div class="slide" id="slide-3" data-name="หน้า 4">
+        <div class="slide-content">
+            
+            <div class="img-container" id="img-cont-3"><div class="img-wrapper"><img class="editable-img" style="opacity: 1;" src="images/img_3.jpg" loading="lazy"></div></div>
+            
+        </div>
+    </div><div class="slide" id="slide-4" data-name="หน้า 5">
+        <div class="slide-content">
+            
+            <div class="img-container" id="img-cont-4"><div class="img-wrapper"><img class="editable-img" style="opacity: 1;" src="images/img_4.jpg" loading="lazy"></div></div>
+            
+        </div>
+    </div><div class="slide" id="slide-5" data-name="หน้า 6">
+        <div class="slide-content">
+            
+            <div class="img-container" id="img-cont-5"><div class="img-wrapper"><img class="editable-img" style="opacity: 1;" src="images/img_5.jpg" loading="lazy"></div></div>
+            
+        </div>
+    </div><div class="slide" id="slide-6" data-name="หน้า 7">
+        <div class="slide-content">
+            
+            <div class="img-container" id="img-cont-6"><div class="img-wrapper"><img class="editable-img" style="opacity: 1;" src="images/img_6.jpg" loading="lazy"></div></div>
+            
+        </div>
+    </div><div class="slide" id="slide-7" data-name="หน้า 8">
+        <div class="slide-content">
+            
+            <div class="img-container" id="img-cont-7"><div class="img-wrapper"><img class="editable-img" style="opacity: 1;" src="images/img_7.jpg" loading="lazy"></div></div>
+            
+        </div>
+    </div><div class="slide" id="slide-8" data-name="หน้า 9">
+        <div class="slide-content">
+            
+            <div class="img-container" id="img-cont-8"><div class="img-wrapper"><img class="editable-img" style="opacity: 1;" src="images/img_8.jpg" loading="lazy"></div></div>
+            
+        </div>
+    </div><div class="slide" id="slide-9" data-name="หน้า 10">
+        <div class="slide-content">
+            
+            <div class="img-container" id="img-cont-9"><div class="img-wrapper"><img class="editable-img" style="opacity: 1;" src="images/img_9.jpg" loading="lazy"></div></div>
+            
+        </div>
+    </div><div class="slide" id="slide-10" data-name="หน้า 11">
+        <div class="slide-content">
+            
+            <div class="img-container" id="img-cont-10"><div class="img-wrapper"><img class="editable-img" style="opacity: 1;" src="images/img_10.jpg" loading="lazy"></div></div>
+            
+        </div>
+    </div><div class="slide" id="slide-11" data-name="หน้า 12">
+        <div class="slide-content">
+            
+            <div class="img-container" id="img-cont-11"><div class="img-wrapper"><img class="editable-img" style="opacity: 1;" src="images/img_11.jpg" loading="lazy"></div></div>
+            
+        </div>
+    </div><div class="slide" id="slide-12" data-name="หน้า 13">
+        <div class="slide-content">
+            
+            <div class="img-container" id="img-cont-12"><div class="img-wrapper"><img class="editable-img" style="opacity: 1;" src="images/img_12.jpg" loading="lazy"></div></div>
+            
+        </div>
+    </div><div class="slide" id="slide-13" data-name="หน้า 14">
+        <div class="slide-content">
+            
+            <div class="img-container" id="img-cont-13"><div class="img-wrapper"><img class="editable-img" style="opacity: 1;" src="images/img_13.jpg" loading="lazy"></div></div>
+            
+        </div>
+    </div><div class="slide" id="slide-14" data-name="หน้า 15">
+        <div class="slide-content">
+            
+            <div class="img-container" id="img-cont-14"><div class="img-wrapper"><img class="editable-img" style="opacity: 1;" src="images/img_14.jpg" loading="lazy"></div></div>
+            
+        </div>
+    </div><div class="slide" id="slide-15" data-name="หน้า 16">
+        <div class="slide-content">
+            
+            <div class="img-container" id="img-cont-15"><div class="img-wrapper"><img class="editable-img" style="opacity: 1;" src="images/img_15.jpg" loading="lazy"></div></div>
+            
+        </div>
+    </div></div>
+
+<div class="nav">
+  <button onclick="prev()">◀</button>
+  <button onclick="next()">▶</button>
+</div>
+
+<div class="page-control">
+  <span style="font-size:12px;">หน้า <span id="pageNum">1</span></span>
+  <input type="range" id="pageSlider" min="0" max="15" value="0" oninput="goSlide(this.value)">
+</div>
+
+<script>
+// PDF.js Worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+let currentZoom = 1.0;
+let totalSlides = 1; 
+let currentSlideIndexForImg = 0;
+const slider = document.getElementById("slider");
+const loadingOverlay = document.getElementById('loading-overlay');
+const loadingText = document.getElementById('loading-text');
+const loadingSubText = document.getElementById('loading-subtext');
+
+// --- 🚀 LAZY LOADING OBSERVER (For Editor) ---
+const lazyLoadObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            const img = entry.target;
+            if (img.dataset.src) {
+                img.src = img.dataset.src; 
+                img.removeAttribute('data-src');
+                img.style.opacity = 1;
+                observer.unobserve(img);
+            }
+        }
+    });
+}, { rootMargin: "200% 0px 200% 0px" }); 
+
+// Initial Setup
+buildTOC();
+goSlide(0); 
+
+// --- Core Helper: True Auto-Crop on Canvas (Adjusted Padding) ---
+function cropCanvasToContent(sourceCanvas, pad = 8) {
+    const ctx = sourceCanvas.getContext('2d', { willReadFrequently: true });
+    const imgData = ctx.getImageData(0, 0, sourceCanvas.width, sourceCanvas.height);
+    const data = imgData.data;
+    let minX = sourceCanvas.width, minY = sourceCanvas.height, maxX = 0, maxY = 0;
+    let found = false;
+
+    for (let y = 0; y < sourceCanvas.height; y++) {
+        for (let x = 0; x < sourceCanvas.width; x++) {
+            const i = (y * sourceCanvas.width + x) * 4;
+            const r = data[i], g = data[i+1], b = data[i+2], a = data[i+3];
+            // Ignore transparent or nearly pure white pixels
+            if (a > 20 && (r < 250 || g < 250 || b < 250)) {
+                if (x < minX) minX = x;
+                if (x > maxX) maxX = x;
+                if (y < minY) minY = y;
+                if (y > maxY) maxY = y;
+                found = true;
+            }
+        }
+    }
+
+    if (!found) return sourceCanvas; // Empty canvas
+
+    // Apply exact padding (increased for better readability)
+    minX = Math.max(0, minX - pad);
+    minY = Math.max(0, minY - pad);
+    maxX = Math.min(sourceCanvas.width, maxX + pad);
+    maxY = Math.min(sourceCanvas.height, maxY + pad);
+
+    const width = maxX - minX;
+    const height = maxY - minY;
+
+    if (width === sourceCanvas.width && height === sourceCanvas.height) return sourceCanvas; // No crop needed
+
+    const croppedCanvas = document.createElement('canvas');
+    croppedCanvas.width = width;
+    croppedCanvas.height = height;
+    croppedCanvas.getContext('2d').drawImage(sourceCanvas, minX, minY, width, height, 0, 0, width, height);
+    return croppedCanvas;
+}
+
+
+// --- Layout Toggle ---
+function toggleLayout() {
+    document.body.classList.toggle('vertical-read');
+    const btn = document.getElementById('layoutBtn');
+    const isVertical = document.body.classList.contains('vertical-read');
+    btn.innerText = isVertical ? "📖 แนวนอน" : "📜 แนวตั้ง";
+    const currentIndex = parseInt(document.getElementById('pageSelect').value) || 0;
+    setTimeout(() => goSlide(currentIndex), 100);
+}
+
+// --- DELETE PAGE LOGIC ---
+function deleteSlide(btn) {
+    if(confirm("ยืนยันลบหน้านี้?")) {
+        const slide = btn.closest('.slide');
+        slide.remove();
+        if(document.querySelectorAll('.slide').length === 0) addNewPage(); 
+        reindexSlides();
+    }
+}
+
+function reindexSlides() {
+    const slides = document.querySelectorAll('.slide');
+    slides.forEach((slide, i) => {
+        slide.id = `slide-${i}`;
+        const addImgBtn = slide.querySelector('.add-img-btn');
+        if(addImgBtn) addImgBtn.setAttribute('onclick', `triggerAddImage(${i})`);
+        const imgCont = slide.querySelector('.img-container');
+        if(imgCont) imgCont.id = `img-cont-${i}`;
+    });
+    buildTOC(); 
+    updateCounters();
+    const current = parseInt(document.getElementById('pageSelect').value) || 0;
+    if(current >= slides.length) goSlide(slides.length - 1);
+    else goSlide(current);
+}
+
+// --- Bulk Upload Logic ---
+document.getElementById('bulkInput').addEventListener('change', async function(e) {
+    const files = Array.from(this.files);
+    if(files.length === 0) return;
+    files.sort((a,b) => a.name.localeCompare(b.name, undefined, {numeric: true, sensitivity: 'base'}));
+    const slides = document.querySelectorAll('.slide');
+    if(slides.length === 1) {
+        const firstSlide = slides[0];
+        const hasImages = firstSlide.querySelectorAll('img').length > 0;
+        if(!hasImages) slider.innerHTML = ''; 
+    }
+    
+    loadingOverlay.style.display = 'flex';
+    
+    try {
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            loadingText.innerText = `กำลังนำเข้าไฟล์ ${i+1}/${files.length}`;
+            loadingSubText.innerText = `ครอบอัตโนมัติ: ${file.name}`;
+            
+            // Allow UI to update
+            await new Promise(r => setTimeout(r, 10));
+
+            if (file.type === 'application/pdf') {
+                await processPDF(file);
+            } else if (file.type.startsWith('image/')) {
+                await processImageWithAutoCrop(file);
+            }
+        }
+        reindexSlides();
+        goSlide(0);
+        loadingOverlay.style.display = 'none';
+    } catch (err) {
+        console.error(err);
+        loadingOverlay.style.display = 'none';
+        alert("เกิดข้อผิดพลาดในการประมวลผลไฟล์");
+    }
+    this.value = ''; 
+});
+
+// --- 🖼 Image Processing with Auto-Crop (Preserve Format JPG/PNG) ---
+async function processImageWithAutoCrop(file) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            canvas.getContext('2d').drawImage(img, 0, 0);
+            
+            const croppedCanvas = cropCanvasToContent(canvas, 8); // Auto crop 8px padding
+            
+            croppedCanvas.toBlob(blob => {
+                const newUrl = URL.createObjectURL(blob);
+                const fakeFile = new File([blob], file.name, { type: file.type }); // Save as new File preserving type
+                createNewSlide(newUrl, fakeFile);
+                resolve();
+            }, file.type || 'image/jpeg', 0.90);
+        };
+        img.onerror = reject;
+        img.src = URL.createObjectURL(file);
+    });
+}
+
+// --- 🖼 PDF 4K Rendering + Auto-Crop ---
+async function processPDF(file) {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+    
+    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+        loadingSubText.innerText = `แปลง PDF เป็น 4K และครอบขอบ หน้า ${pageNum}/${pdf.numPages}`;
+        const page = await pdf.getPage(pageNum);
+        
+        // Calculate scale to achieve ~4K (3840px width)
+        const unscaledViewport = page.getViewport({ scale: 1.0 });
+        const targetWidth = 3840;
+        let scale = targetWidth / unscaledViewport.width;
+        if(scale > 5.0) scale = 5.0; 
+        if(scale < 2.0) scale = 2.0; 
+        
+        const viewport = page.getViewport({ scale: scale }); 
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d', { alpha: false }); 
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+        
+        // Render PDF
+        await page.render({ canvasContext: context, viewport: viewport }).promise;
+        
+        // Auto Crop immediately before saving to memory!
+        const croppedCanvas = cropCanvasToContent(canvas, 8);
+        
+        const blob = await new Promise(resolve => croppedCanvas.toBlob(resolve, 'image/jpeg', 0.90));
+        const imgUrl = URL.createObjectURL(blob);
+        const fakeFile = new File([blob], `pdf_page_${pageNum}.jpg`, { type: 'image/jpeg' });
+        
+        createNewSlide(imgUrl, fakeFile);
+        
+        await new Promise(r => setTimeout(r, 5)); // Yield to prevent freeze
+    }
+}
+
+function createNewSlide(imgSrc, fileRef) {
+    const newIndex = document.querySelectorAll('.slide').length;
+    const slideDiv = document.createElement('div');
+    slideDiv.className = 'slide';
+    slideDiv.id = `slide-${newIndex}`;
+    slideDiv.setAttribute('data-name', `หน้า ${newIndex + 1}`);
+    slideDiv.innerHTML = `
+        <div class="slide-content">
+            <button class="delete-page-btn edit-only" onclick="deleteSlide(this)">❌ ลบหน้านี้</button>
+            <div class="img-container" id="img-cont-${newIndex}"></div>
+            <div class="add-img-btn edit-only" onclick="triggerAddImage(${newIndex})">+ เพิ่มรูปภาพ</div>
+        </div>
+    `;
+    slider.appendChild(slideDiv);
+    const container = slideDiv.querySelector(`#img-cont-${newIndex}`);
+    createImageWrapper(container, imgSrc, fileRef);
+}
+
+// --- Core App Logic ---
+function addNewPage() {
+    const newIndex = document.querySelectorAll('.slide').length;
+    const slideDiv = document.createElement('div');
+    slideDiv.className = 'slide';
+    slideDiv.id = `slide-${newIndex}`;
+    slideDiv.setAttribute('data-name', `หน้า ${newIndex + 1}`);
+    slideDiv.innerHTML = `
+        <div class="slide-content">
+            <button class="delete-page-btn edit-only" onclick="deleteSlide(this)">❌ ลบหน้านี้</button>
+            <div class="img-container" id="img-cont-${newIndex}"></div>
+            <div class="add-img-btn edit-only" onclick="triggerAddImage(${newIndex})">+ เพิ่มรูปภาพ</div>
+            <p contenteditable="true" style="padding:0 20px;">เนื้อหา...</p>
+        </div>
+    `;
+    slider.appendChild(slideDiv);
+    addTocItem(newIndex, `หน้า ${newIndex + 1}`);
+    updateCounters();
+    setTimeout(() => goSlide(newIndex), 100);
+}
+
+function triggerAddImage(index) { currentSlideIndexForImg = index; document.getElementById('imgInputGlobal').click(); }
+document.getElementById('imgInputGlobal').addEventListener('change', async function(e) {
+    if (this.files && this.files.length > 0) {
+        loadingOverlay.style.display = 'flex';
+        
+        // Loop through all selected files to allow multiple specific uploads to a single page
+        for(let i = 0; i < this.files.length; i++) {
+            const file = this.files[i];
+            
+            loadingText.innerText = `กำลังนำเข้ารูปภาพ ${i+1}/${this.files.length}...`;
+            loadingSubText.innerText = `ครอบอัตโนมัติ (เว้นขอบ 8px): ${file.name}`;
+            
+            await new Promise(r => setTimeout(r, 10)); // UI Yield
+            
+            await new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.naturalWidth;
+                    canvas.height = img.naturalHeight;
+                    canvas.getContext('2d').drawImage(img, 0, 0);
+                    
+                    const croppedCanvas = cropCanvasToContent(canvas, 8);
+                    
+                    // Preserve specific file type (PNG or JPG)
+                    croppedCanvas.toBlob(blob => {
+                        const url = URL.createObjectURL(blob);
+                        const fakeFile = new File([blob], file.name, { type: file.type });
+                        const container = document.getElementById(`img-cont-${currentSlideIndexForImg}`);
+                        createImageWrapper(container, url, fakeFile);
+                        resolve();
+                    }, file.type || 'image/jpeg', 0.90);
+                };
+                img.onerror = resolve; // Skip to next if error
+                img.src = URL.createObjectURL(file);
+            });
+        }
+        loadingOverlay.style.display = 'none';
+    }
+    this.value = ''; 
+});
+
+function createImageWrapper(container, src, fileObj = null) {
+    const wrapper = document.createElement('div'); wrapper.className = 'img-wrapper';
+    
+    const img = document.createElement('img'); 
+    img.dataset.src = src; // For Lazy Loading in Editor
+    img.style.opacity = "0"; // Fade-in effect
+    img.className = 'editable-img';
+    if(fileObj) img.fileRef = fileObj;
+    
+    lazyLoadObserver.observe(img);
+
+    const tools = document.createElement('div'); tools.className = 'img-tools edit-only';
+    
+    // Auto crop is now implicit on upload. Kept manual crop for fine-tuning.
+    const cropBtn = document.createElement('button'); cropBtn.className = 'tool-btn crop-btn'; cropBtn.innerText = '✂️ ตัดด้วยมือ'; cropBtn.onclick = function() { initCrop(img); };
+    const delBtn = document.createElement('button'); delBtn.className = 'tool-btn delete-btn'; delBtn.innerText = '❌ ลบ'; delBtn.onclick = function() { wrapper.remove(); };
+    
+    tools.appendChild(cropBtn); tools.appendChild(delBtn); 
+    wrapper.appendChild(img); wrapper.appendChild(tools); 
+    container.appendChild(wrapper);
+}
+
+// --- Manual Cropper (Preserve PNG transparency) ---
+let cropCanvas = document.getElementById('cropCanvas'), ctx = cropCanvas.getContext('2d'), currentCropImg = null, startX, startY, isDragging = false, rect = {x:0, y:0, w:0, h:0}, imgObj = new Image();
+function initCrop(imgElement) {
+    currentCropImg = imgElement; imgObj.src = imgElement.src;
+    imgObj.onload = function() {
+        const maxWidth = window.innerWidth * 0.9, maxHeight = window.innerHeight * 0.8;
+        let displayW = imgObj.naturalWidth, displayH = imgObj.naturalHeight;
+        if (displayW > maxWidth || displayH > maxHeight) { const ratio = Math.min(maxWidth / displayW, maxHeight / displayH); displayW = displayW * ratio; displayH = displayH * ratio; }
+        cropCanvas.width = displayW; cropCanvas.height = displayH;
+        drawOverlay(); document.getElementById('cropModal').style.display = 'flex';
+    }
+}
+function drawOverlay() {
+    ctx.clearRect(0, 0, cropCanvas.width, cropCanvas.height); ctx.drawImage(imgObj, 0, 0, cropCanvas.width, cropCanvas.height);
+    if (rect.w !== 0) {
+        ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(0, 0, cropCanvas.width, cropCanvas.height);
+        ctx.globalCompositeOperation = 'destination-out'; ctx.fillStyle = 'black'; ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+        ctx.globalCompositeOperation = 'source-over'; ctx.drawImage(imgObj, rect.x * (imgObj.naturalWidth/cropCanvas.width), rect.y * (imgObj.naturalHeight/cropCanvas.height), rect.w * (imgObj.naturalWidth/cropCanvas.width), rect.h * (imgObj.naturalHeight/cropCanvas.height), rect.x, rect.y, rect.w, rect.h);
+        ctx.strokeStyle = '#00ff00'; ctx.lineWidth = 2; ctx.strokeRect(rect.x, rect.y, rect.w, rect.h);
+    }
+}
+cropCanvas.addEventListener('mousedown', e => { const bRect = cropCanvas.getBoundingClientRect(); startX = e.clientX - bRect.left; startY = e.clientY - bRect.top; isDragging = true; rect = {x:startX, y:startY, w:0, h:0}; });
+cropCanvas.addEventListener('mousemove', e => { if(!isDragging) return; const bRect = cropCanvas.getBoundingClientRect(); rect.w = (e.clientX - bRect.left) - startX; rect.h = (e.clientY - bRect.top) - startY; drawOverlay(); });
+cropCanvas.addEventListener('mouseup', () => { isDragging = false; });
+function closeCrop() { document.getElementById('cropModal').style.display = 'none'; rect = {x:0, y:0, w:0, h:0}; }
+function applyCrop() {
+    if (rect.w === 0 || rect.h === 0) { closeCrop(); return; }
+    let fx = rect.w < 0 ? rect.x + rect.w : rect.x, fy = rect.h < 0 ? rect.y + rect.h : rect.y, fw = Math.abs(rect.w), fh = Math.abs(rect.h);
+    const scaleX = imgObj.naturalWidth / cropCanvas.width, scaleY = imgObj.naturalHeight / cropCanvas.height;
+    
+    const tempCanvas = document.createElement('canvas'); tempCanvas.width = fw * scaleX; tempCanvas.height = fh * scaleY;
+    tempCanvas.getContext('2d').drawImage(imgObj, fx * scaleX, fy * scaleY, fw * scaleX, fh * scaleY, 0, 0, tempCanvas.width, tempCanvas.height);
+    
+    // Check if the original image was PNG to keep transparent background
+    const mimeType = (currentCropImg.fileRef && currentCropImg.fileRef.type === 'image/png') ? 'image/png' : 'image/jpeg';
+    
+    tempCanvas.toBlob(blob => {
+        const newUrl = URL.createObjectURL(blob);
+        currentCropImg.src = newUrl; 
+        currentCropImg.dataset.src = newUrl;
+        
+        // Update fileRef so export knows the correct format
+        currentCropImg.fileRef = new File([blob], `cropped.${mimeType === 'image/png' ? 'png' : 'jpg'}`, { type: mimeType }); 
+        
+        closeCrop();
+    }, mimeType, 0.95);
+}
+
+// Navigation & Logic
+function next(){ slider.scrollBy({left:window.innerWidth, behavior:"smooth"}); }
+function prev(){ slider.scrollBy({left:-window.innerWidth, behavior:"smooth"}); }
+
+function goSlide(index){ 
+    index = parseInt(index);
+    if (document.body.classList.contains('vertical-read')) {
+        const target = document.getElementById(`slide-${index}`);
+        if(target) slider.scrollTo({top: target.offsetTop - 50, behavior: "smooth"});
+    } else {
+        slider.scrollTo({left:index*window.innerWidth, behavior:"smooth"}); 
+    }
+    updatePageUI(index);
+}
+
+function updatePageUI(index) {
+    index = Math.round(index); 
+    const sliderInput = document.getElementById("pageSlider"), pageNum = document.getElementById("pageNum"), pageSelect = document.getElementById("pageSelect");
+    document.querySelectorAll('.toc-item-wrapper').forEach(d => d.classList.remove('active'));
+    const activeToc = document.getElementById(`toc-wrap-${index}`); if(activeToc) activeToc.classList.add('active');
+    if(sliderInput) sliderInput.value = index; if(pageNum) pageNum.innerText = Number(index)+1; if(pageSelect) pageSelect.value = index;
+}
+
+slider.addEventListener('scroll', () => { 
+    if (document.body.classList.contains('vertical-read')) {
+        const slides = document.querySelectorAll('.slide');
+        let current = 0;
+        slides.forEach((slide, index) => { if (slide.offsetTop <= slider.scrollTop + window.innerHeight/2) current = index; });
+        updatePageUI(current);
+    } else {
+        let index = Math.round(slider.scrollLeft / window.innerWidth); 
+        updatePageUI(index); 
+    }
+});
+
+// TOC
+function buildTOC() {
+    const toc = document.getElementById("toc"); toc.innerHTML = '';
+    document.querySelectorAll('.slide').forEach((slide, index) => { let name = slide.getAttribute('data-name') || `หน้า ${index + 1}`; addTocItem(index, name); });
+    updateCounters();
+}
+function addTocItem(index, name) {
+    const toc = document.getElementById("toc"), wrapper = document.createElement('div'); wrapper.className = 'toc-item-wrapper'; wrapper.id = `toc-wrap-${index}`;
+    
+    const isEditor = document.getElementById('bulkInput') !== null;
+
+    if (isEditor) {
+        const textDiv = document.createElement('div'); 
+        textDiv.className = 'toc-text'; 
+        textDiv.innerText = name; 
+        textDiv.setAttribute('contenteditable', 'true');
+        textDiv.onclick = (e) => { goSlide(index); toggleTOC(); };
+        textDiv.addEventListener('input', function() { const slide = document.getElementById(`slide-${index}`); if(slide) slide.setAttribute('data-name', this.innerText); });
+        
+        const delBtn = document.createElement('span');
+        delBtn.className = 'toc-del-btn edit-only';
+        delBtn.innerText = '❌';
+        delBtn.title = 'ลบหน้านี้';
+        delBtn.onclick = (e) => {
+            e.stopPropagation();
+            const slide = document.getElementById(`slide-${index}`);
+            if(slide) deleteSlide({ closest: () => slide });
+        };
+        wrapper.appendChild(textDiv);
+        wrapper.appendChild(delBtn);
+    } else {
+        const link = document.createElement('a');
+        link.className = 'toc-text';
+        link.innerText = name;
+        link.href = `#slide-${index}`;
+        link.onclick = () => { toggleTOC(); };
+        link.style.display = 'block';
+        link.style.textDecoration = 'none';
+        link.style.color = 'inherit';
+        wrapper.appendChild(link);
+    }
+    toc.appendChild(wrapper);
+}
+function updateCounters() {
+    totalSlides = document.querySelectorAll('.slide').length;
+    document.getElementById("pageSlider").max = totalSlides - 1;
+    const select = document.getElementById("pageSelect"); select.innerHTML = '';
+    for(let i=0; i<totalSlides; i++) { const opt = document.createElement('option'); opt.value = i; opt.innerText = i+1; select.appendChild(opt); }
+}
+
+// Utils
+function toggleTOC(){ document.getElementById("toc").classList.toggle("show"); }
+function fontSize(change){
+  currentZoom += (change * 0.1); 
+  if(currentZoom < 0.5) currentZoom = 0.5; if(currentZoom > 5.0) currentZoom = 5.0; 
+  
+  const widthPercent = Math.round(currentZoom * 100);
+  document.querySelectorAll(".slide-content").forEach(el => { 
+    el.style.zoom = ""; el.style.transform = ""; 
+    el.style.width = widthPercent + "%";
+    el.style.fontSize = (18 * currentZoom) + "px";
+  });
+}
+function changeTheme(themeName) { document.body.className = themeName; }
+
+// --- 📦 FIX ASYNC 4K EXPORT LOGIC (Dynamically keep PNG/JPG extensions) ---
+async function downloadZip(){
+    loadingOverlay.style.display = 'flex';
+    loadingText.innerText = "กำลังแพ็กไฟล์ E-book...";
+    loadingSubText.innerText = "กำลังแปลงข้อมูลเป็นไฟล์ Zip (4K Quality) อาจใช้เวลาสักครู่...";
+
+    try {
+        const zip = new JSZip();
+        const imgFolder = zip.folder("images");
+        
+        const clone = document.documentElement.cloneNode(true);
+        
+        // Cleanup Editor UI
+        const editorTools = clone.querySelectorAll(".edit-only, .delete-page-btn, .toc-del-btn, #cropModal, #imgInputGlobal, #loading-overlay, #bulkInput");
+        editorTools.forEach(el => el.remove());
+        
+        clone.querySelectorAll("[contenteditable]").forEach(el => el.removeAttribute("contenteditable"));
+        
+        const tocContainer = clone.querySelector('#toc'); 
+        if(tocContainer) tocContainer.innerHTML = '';
+
+        const pageSelect = clone.querySelector('#pageSelect');
+        if(pageSelect) {
+            pageSelect.setAttribute('onchange', "window.location.hash = '#slide-' + this.value");
+        }
+
+        const exportScript = document.createElement('script');
+        exportScript.textContent = `
+            window.addEventListener('load', () => {
+                buildTOC(); 
+                if(window.location.hash) {
+                    const index = window.location.hash.replace('#slide-', '');
+                    goSlide(index);
+                }
+            });
+            window.addEventListener('hashchange', () => {
+                const index = window.location.hash.replace('#slide-', '');
+                goSlide(index);
+            });
+        `;
+        clone.querySelector('body').appendChild(exportScript);
+
+        // --- Fetch High-Res Blobs Async ---
+        const images = clone.querySelectorAll("img.editable-img");
+        const originalImages = document.querySelectorAll("img.editable-img");
+
+        for(let i=0; i<images.length; i++) {
+            const imgClone = images[i];
+            const imgOriginal = originalImages[i];
+            
+            const targetSrc = imgOriginal.dataset.src || imgOriginal.src;
+            if(!targetSrc) continue;
+
+            loadingSubText.innerText = `กำลังบันทึกภาพหน้า ${i+1}/${images.length}`;
+
+            let filename = `img_${Date.now()}_${i}.jpg`;
+            let dataBlob = null;
+            let finalExt = 'jpg';
+
+            if (imgOriginal.fileRef) {
+                dataBlob = imgOriginal.fileRef;
+                finalExt = dataBlob.type === 'image/png' ? 'png' : 'jpg';
+                filename = `img_${i}.${finalExt}`;
+            } else if (targetSrc.startsWith('blob:')) {
+                const response = await fetch(targetSrc);
+                dataBlob = await response.blob();
+                finalExt = dataBlob.type === 'image/png' ? 'png' : 'jpg';
+                filename = `img_${i}.${finalExt}`;
+            } else if (targetSrc.startsWith('data:')) {
+                dataBlob = targetSrc.split(',')[1];
+                finalExt = targetSrc.includes('image/png') ? 'png' : 'jpg';
+                filename = `img_${i}.${finalExt}`;
+            }
+
+            if (dataBlob) {
+                if(targetSrc.startsWith('data:')) {
+                    imgFolder.file(filename, dataBlob, {base64: true});
+                } else {
+                    imgFolder.file(filename, dataBlob);
+                }
+                
+                imgClone.src = "images/" + filename;
+                imgClone.removeAttribute('data-src');
+                imgClone.setAttribute('loading', 'lazy'); 
+                imgClone.style.opacity = "1"; 
+            }
+        }
+
+        zip.file("index.html", "<!DOCTYPE html>\n" + clone.outerHTML);
+
+        loadingSubText.innerText = "กำลังสร้างไฟล์ Zip ขั้นสุดท้าย...";
+        const content = await zip.generateAsync({type:"blob"});
+        
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(content);
+        a.download = "ebook-project-4k.zip";
+        a.click();
+        
+        loadingOverlay.style.display = 'none';
+
+    } catch (err) {
+        console.error(err);
+        loadingOverlay.style.display = 'none';
+        alert("เกิดข้อผิดพลาดในการบันทึกไฟล์");
+    }
+}
+</script>
+
+<script>
+            window.addEventListener('load', () => {
+                buildTOC(); 
+                if(window.location.hash) {
+                    const index = window.location.hash.replace('#slide-', '');
+                    goSlide(index);
+                }
+            });
+            window.addEventListener('hashchange', () => {
+                const index = window.location.hash.replace('#slide-', '');
+                goSlide(index);
+            });
+        </script></body></html>
